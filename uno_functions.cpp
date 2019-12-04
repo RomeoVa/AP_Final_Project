@@ -54,9 +54,9 @@ bool wild_card()
     }
 }
 
-vector<pair <int, int>> player_hand()
+vector<pair <int, int> > player_hand()
 {
-    vector<pair <int, int>> hand;
+    vector<pair <int, int> > hand;
 
     for (int i = 0; i < 7; i++) 
     {
@@ -93,12 +93,12 @@ string getColor(pair <int,int> * card)
     
 }
 
-void deleteCardAtPosition(vector<pair <int, int>> * hand,int position)
+void deleteCardAtPosition(vector<pair <int, int> > * hand,int position)
 {
     hand->erase(hand->begin() + position);
 }
 
-bool winner(vector<pair <int, int>> * hand)
+bool winner(vector<pair <int, int> > * hand)
 {
     if(hand->size() == 0)
     {
@@ -107,15 +107,15 @@ bool winner(vector<pair <int, int>> * hand)
     return false;
 }
 
-int main()
+/*int main()
 {
 
-    vector<pair <int, int>>  hand;
+    vector<pair <int, int> >  hand;
     string name;
     srand (time(NULL));
 
     
-    map<int, pair <string ,int>> player; 
+    map<int, pair <string ,int> > player; 
     player.insert(make_pair(1,make_pair("Mau",6)));
     //cout<<"player: "<<player[1].first<<player[1].second<<endl;
 
@@ -163,4 +163,4 @@ int main()
 
 
     return 0;
-}
+}*/

@@ -11,10 +11,10 @@ using namespace std;
 
 bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card);
 bool wild_card();
-bool winner(vector<pair <int, int>> * hand);
+bool winner(vector<pair <int, int> > * hand);
 pair <int, int> get_card();
 string getColor(pair <int,int> * card);
-vector<pair <int, int>> player_hand();
-void deleteCardAtPosition(vector<pair <int, int>> * hand,int position);
+vector<pair <int, int> > player_hand();
+void deleteCardAtPosition(vector<pair <int, int> > * hand,int position);
 
 #endif  
