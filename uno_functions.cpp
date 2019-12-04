@@ -129,7 +129,7 @@ void vectorToString(vector<pair <int, int>> * hand,char  *buffer)
 
     cout<<"JHASKJdahk"<<buffer<<endl;
 }
-
+/*
 int main()
 {
 
@@ -190,3 +190,4 @@ int main()
 
     return 0;
 }
+*/
