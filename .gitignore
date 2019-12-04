@@ -2,4 +2,7 @@
 client
 *.o
 server
+fatal_error
+uno_functions
+sockets
 .DS_Store
