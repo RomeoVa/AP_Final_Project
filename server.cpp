@@ -4,13 +4,13 @@
     It will create child processes to attend requests
     It receives connections using sockets
 
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    21/10/2018
 
-    Modified by Mauricio Peón García
-    A01024162
-    27/10/2019
+    Created  by  
+    Mauricio Peón García        A01024162
+    Pablo Terán Ríos            A01421434
+    Romeo Varela Nagore         A01020736
+    
+    09/11/2019
 */
 
 #include <stdio.h>
@@ -27,9 +27,9 @@
 
 #include <signal.h>
 // Custom libraries
-#include "uno_functions.h"
 #include "sockets.h"
 #include "fatal_error.h"
+#include "uno_functions.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_QUEUE 5
@@ -48,7 +48,7 @@ int main(int argc, char * argv[])
 {
     int server_fd;
 
-    printf("\n=== SERVER FOR COMPUTING THE VALUE OF pi ===\n");
+    printf("\n=== SERVER FOR PLAYING UNO++ ===\n");
 
     // Check the correct arguments
     if (argc != 2)
