@@ -2,20 +2,21 @@
     Client program to get the value of PI
     This program connects to the server using sockets
 
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    21/10/2018
-
 
     Modified by Mauricio Peón García
     A01024162
     27/10/2019
 */
-
+//C
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
+
+//C++
+#include <iostream>
+#include <sstream>
+#include <vector>
 // Sockets libraries
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -31,11 +32,14 @@
 
 #define BUFFER_SIZE 1024
 
+using namespace std;
+
 int interrupted = 0;
 
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
-void requestPI(int connection_fd);
+void attendRequest(int connection_fd);
+void initGame(char *buffer, vector<pair<int,int> > *hand, char *turn);
 void setupHandlers();
 void onInterrupt(int signal);
 
@@ -44,7 +48,7 @@ int main(int argc, char * argv[])
 {
     int connection_fd;
 
-    printf("\n=== CLIENT FOR COMPUTING THE VALUE OF pi ===\n");
+    printf("\n=== CLIENT FOR Uno ++  ===\n");
 
     // Check the correct arguments
     if (argc != 3)
@@ -56,7 +60,7 @@ int main(int argc, char * argv[])
     // Start the server
     connection_fd = connectSocket(argv[1], argv[2]);
 	// Listen for connections from the clients
-    requestPI(connection_fd);
+    attendRequest(connection_fd);
     // Close the socket
     close(connection_fd);
 
@@ -75,34 +79,63 @@ void usage(char * program)
     exit(EXIT_FAILURE);
 }
 
-void requestPI(int connection_fd)
+void attendRequest(int connection_fd)
 {
     char buffer[BUFFER_SIZE];
-    unsigned long int iterations;
-    // Variables to receive PI.
-    unsigned long int counter = 0;
-    double result;
     int server_signal = 0;
+    char *player;
+    int option;
+    pair <int, int> current_card;
+    char *player_name;
+
      // Variables for polling
-    struct pollfd poll_fd[1];
-    int poll_response;
-    int timeout = 1000;     // Timeout of one second
+    //struct pollfd poll_fd[1];
+    //int poll_response;
+    //int timeout = 1000;     // Timeout of one second
 
     // Prepare for the poll
-    poll_fd[0].fd = connection_fd;
-    poll_fd[0].events = POLLIN;
+    //poll_fd[0].fd = connection_fd;
+    //poll_fd[0].events = POLLIN;    
 
-    printf("Enter the number of iterations for PI: ");
-    scanf("%lu", &iterations);
+    while(option!=2)
+    {
+        cout<<"************** Main menu **************\n";
 
-    // Prepare the response to the client
-    sprintf(buffer, "%lu", iterations);
-    // SEND
-    // Send the response
-    sendString(connection_fd, buffer);
+        cout<<"1) Start game\n";
+        cout<<"2) Exit\n";
+        cin>>option;
+
+        if(option == 1)
+        {
+            cout<<"Player name:";
+            cin>>player_name;
+
+            /*stringstream ss;
+
+            
+            ss << buffer;
+            ss >> players[i].first;
+            cout << " > " << players[i].first << " connected" <<  endl;*/
+            // Prepare the response to the client
+            sprintf(buffer,"START:%s",player_name);
+
+            // SEND
+                // Send the response to the server to join a uno ++ game
+            sendString(connection_fd, buffer);
+
+            //Recive the players turn and cards hand
+            //recvString(connection_fd, buffer, BUFFER_SIZE);
+            
+            
+
+        }
+
+    }
+    
+    
     
     // While not interrupted receive signals from the server.
-    while(!interrupted)
+    /*while(!interrupted)
     {
         poll_response = poll(poll_fd, 1, timeout);
         if (poll_response == 0)     // Nothing to receive
@@ -124,9 +157,9 @@ void requestPI(int connection_fd)
                 break;
             }
         }
-    }
+    }*/
     
-    // If interrupted, send signal to the server.
+    /* If interrupted, send signal to the server.
     if (interrupted) 
     {
         printf("\n > Interrupted by a signal. Sending to the server.\n");
@@ -145,7 +178,36 @@ void requestPI(int connection_fd)
     // Print the result
     printf(" > Number of iterations: %lu\n", counter);    
     printf(" > The value for PI is: %.20lf\n", result);
+    */
+}
+
+void initGame(char *buffer, vector<pair<int,int> > *hand, char *turn)
+{
+    char *string,*number,*color;
+    pair<int,int> card;
     
+    string = strtok(buffer, ":");
+    if(strncmp(string, "INIT", 5) != 0)
+    {
+        printf("Invalid client. Exiting!\n");
+        return;
+
+    }
+    turn = strtok(NULL, ":");
+
+    for(int i=0; i<7; i++)
+    {
+        number = strtok (NULL, ":");
+        color = strtok (NULL, ":");
+
+        card = make_pair(atoi(number),atoi(color));
+
+        hand->push_back(card);
+    
+
+    }
+    //sscanf(buffer, "%d", &player, );
+
 }
 
 // Define signal handlers
