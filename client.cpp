@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <string>
 // Sockets libraries
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -86,7 +87,8 @@ void attendRequest(int connection_fd)
     char *player;
     int option;
     pair <int, int> current_card;
-    char *player_name;
+    char player_name[BUFFER_SIZE];
+    vector <pair<int,int> > hand;
 
      // Variables for polling
     //struct pollfd poll_fd[1];
@@ -107,26 +109,21 @@ void attendRequest(int connection_fd)
 
         if(option == 1)
         {
-            cout<<"Player name:";
-            cin>>player_name;
-
-            /*stringstream ss;
+            printf("Player name: ");
+            scanf("%s",player_name);
 
             
-            ss << buffer;
-            ss >> players[i].first;
-            cout << " > " << players[i].first << " connected" <<  endl;*/
             // Prepare the response to the client
-            sprintf(buffer,"START:%s",player_name);
+            sprintf(buffer,"%s",player_name);
 
             // SEND
                 // Send the response to the server to join a uno ++ game
             sendString(connection_fd, buffer);
 
             //Recive the players turn and cards hand
-            //recvString(connection_fd, buffer, BUFFER_SIZE);
+            recvString(connection_fd, buffer, BUFFER_SIZE);
             
-            
+            initGame(buffer, &hand, player);
 
         }
 
