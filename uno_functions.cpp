@@ -6,6 +6,7 @@
 #include <time.h>     
 #include <iostream>
 #include <map> 
+#include <cstring>
 
 //***************************************
 // card.first = number; 
@@ -14,6 +15,7 @@
   
 
 using namespace std;
+#define BUFFER_SIZE 1024
 
 
 pair <int, int> get_card()
@@ -98,7 +100,7 @@ void deleteCardAtPosition(vector<pair <int, int> > * hand,int position)
     hand->erase(hand->begin() + position);
 }
 
-bool winner(vector<pair <int, int> > * hand)
+bool winner(vector<pair <int, int>> * hand)
 {
     if(hand->size() == 0)
     {
@@ -107,12 +109,34 @@ bool winner(vector<pair <int, int> > * hand)
     return false;
 }
 
-/*int main()
+void vectorToString(vector<pair <int, int>> * hand,char  *buffer)
+{
+    string hand_s;
+    int j = 0;
+    for(int i = 0; i < hand->size(); i++)
+    {
+        hand_s+= to_string(hand->at(i).first);
+        hand_s+= ":";
+        hand_s+= to_string(hand->at(i).second);
+        if(i != hand->size() -1)
+        {
+            hand_s+= ":";
+        }
+       
+
+    }
+    strcpy(buffer, hand_s.c_str());
+
+    cout<<"JHASKJdahk"<<buffer<<endl;
+}
+/*
+int main()
 {
 
     vector<pair <int, int> >  hand;
     string name;
     srand (time(NULL));
+    char buffer[BUFFER_SIZE];
 
     
     map<int, pair <string ,int> > player; 
@@ -126,6 +150,8 @@ bool winner(vector<pair <int, int> > * hand)
 
     
     hand = player_hand();
+    vectorToString(&hand, buffer);
+    cout<<"AGAP"<<buffer<<endl;
     
     for (int i = 0; i<hand.size(); i++) 
         cout << hand[i].first << ":"<< getColor(&hand[i])<<"   "; 
@@ -163,4 +189,5 @@ bool winner(vector<pair <int, int> > * hand)
 
 
     return 0;
-}*/
+}
+*/
