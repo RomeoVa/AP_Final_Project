@@ -44,10 +44,10 @@
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void waitForConnections(int server_fd);
-void game(map<int, pair<string, int>> &players, int client_fd, int client_fd2, int client_fd3, int client_fd4);
+void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4);
 void setupHandlers();
 void onInterrupt(int signal);
-void setPlayer(int client, map<int, pair<string, int>> &players, int i);
+void setPlayer(int client, map<int, pair<string, int> > &players, int i);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -106,7 +106,7 @@ void waitForConnections(int server_fd)
     int client_fd4;
 
     //Variables for clients
-    map<int, pair<string, int>> players;
+    map<int, pair<string, int> > players;
     vector<int> turns;
     bool direction;
     pair<int, int> current;
@@ -222,7 +222,7 @@ void waitForConnections(int server_fd)
 /*
     Game handler
 */
-void game(map<int, pair<string, int>> &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
+void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
     char buffer[BUFFER_SIZE];
 
@@ -280,7 +280,7 @@ void onInterrupt(int signal)
     interrupted = 1;
 }
 
-void setPlayer(int client, map<int, pair<string, int>> &players, int i)
+void setPlayer(int client, map<int, pair<string, int> > &players, int i)
 {
     char buffer[BUFFER_SIZE];
     stringstream ss;
