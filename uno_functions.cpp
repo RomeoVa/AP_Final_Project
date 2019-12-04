@@ -100,7 +100,7 @@ void deleteCardAtPosition(vector<pair <int, int> > * hand,int position)
     hand->erase(hand->begin() + position);
 }
 
-bool winner(vector<pair <int, int>> * hand)
+bool winner(vector<pair <int, int> > * hand)
 {
     if(hand->size() == 0)
     {
@@ -109,7 +109,7 @@ bool winner(vector<pair <int, int>> * hand)
     return false;
 }
 
-void vectorToString(vector<pair <int, int>> * hand,char  *buffer)
+void vectorToString(vector<pair <int, int> > * hand,char  *buffer)
 {
     string hand_s;
     int j = 0;
