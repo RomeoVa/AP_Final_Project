@@ -1,0 +1,1 @@
+Mandar todo como char *
