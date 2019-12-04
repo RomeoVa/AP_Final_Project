@@ -2,3 +2,4 @@
 client
 *.o
 server
+.DS_Store
