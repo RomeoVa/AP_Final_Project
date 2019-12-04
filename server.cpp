@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <unistd.h>
 // Sockets libraries
 #include <netdb.h>
@@ -26,6 +26,12 @@
 #include <sys/poll.h>
 
 #include <signal.h>
+
+#include <map>
+#include <iostream>
+#include <vector>
+#include <sstream>
+
 // Custom libraries
 #include "uno_functions.h"
 #include "sockets.h"
@@ -38,9 +44,10 @@
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void waitForConnections(int server_fd);
-void attendRequest(int client_fd);
+void game(map<int, pair<string, int>> &players, int client_fd, int client_fd2, int client_fd3, int client_fd4);
 void setupHandlers();
 void onInterrupt(int signal);
+void setPlayer(int client, map<int, pair<string, int>> &players, int i);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -48,7 +55,7 @@ int main(int argc, char * argv[])
 {
     int server_fd;
 
-    printf("\n=== SERVER FOR COMPUTING THE VALUE OF pi ===\n");
+    printf("\n=== UNO++ Server ===\n");
 
     // Check the correct arguments
     if (argc != 2)
@@ -89,11 +96,22 @@ void usage(char * program)
 */
 void waitForConnections(int server_fd)
 {
+
     struct sockaddr_in client_address;
     socklen_t client_address_size;
     char client_presentation[INET_ADDRSTRLEN];
     int client_fd;
-    pid_t new_pid;
+    int client_fd2;
+    int client_fd3;
+    int client_fd4;
+
+    //Variables for clients
+    map<int, pair<string, int>> players;
+    vector<int> turns;
+    bool direction;
+    pair<int, int> current;
+    int current_players = 0;
+
 
     // Variables for polling
     struct pollfd poll_fd[1];
@@ -108,9 +126,12 @@ void waitForConnections(int server_fd)
 
     while (!interrupted)
     {
-        // Wait for a client connection
-        while(1)
-        {
+
+
+            if (current_players == 4){
+              break;
+            }
+
             poll_response = poll(poll_fd, 1, timeout);
             if (poll_response == 0)     // Nothing to receive
             {
@@ -125,133 +146,117 @@ void waitForConnections(int server_fd)
             }
             else
             {
-                printf("A client wants to connect 111\n");
                 if (poll_fd[0].revents & POLLIN)
                 {
                     // ACCEPT
+                    cout << "The number of players = " << current_players + 1 << endl;
                     // Get the file descriptor to talk with the client
-                    client_fd = accept(server_fd, (struct sockaddr *) &client_address,
-                                &client_address_size);
-                    break;
+                    if (current_players == 0){
+                        client_fd = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
+                        current_players++;
+                        players.insert(make_pair(1, make_pair("Test", 0)));
+                        setPlayer(client_fd, players, 1);
+
+                        //break;
+                    }
+                    else if (current_players == 1){
+                        client_fd2 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
+                        current_players++;
+                        players.insert(make_pair(2, make_pair("Test", 0)));
+                        setPlayer(client_fd2, players, 2);
+
+                        //break;
+                    }
+                    else if (current_players == 2){
+                        client_fd3 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
+                        current_players++;
+                        setPlayer(client_fd3, players, 3);
+
+                        //break;
+                    }
+                    else{
+                        client_fd4 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
+                        current_players++;
+                        setPlayer(client_fd4, players, 4);
+
+                        //break;
+                    }
                 }
             }
         }
-         
+
         // Get the data from the client
         inet_ntop(client_address.sin_family, &client_address.sin_addr, client_presentation, sizeof client_presentation);
-        printf("Received incomming connection from %s on port %d\n", client_presentation, client_address.sin_port);
 
-        // FORK
-        // Create a new child process to deal with the client
-
-        // Fork if not interrupted
+        // If not interrupted
         if (!interrupted)
-        {            
-            new_pid = fork();
-            // Parent
-            if (new_pid > 0)
-            {
-                // Close the new socket
-                close(client_fd);
-            }
-            else if (new_pid == 0)
-            {
-                // Close the main server socket to avoid interfering with the parent
-                close(server_fd);
-                printf("Child process %d dealing with client\n", getpid());
+        {
 
-                setupHandlers();
-                // Deal with the client
-                attendRequest(client_fd);
-                // Close the new socket
-                close(client_fd);
-                // Terminate the child process
-                exit(EXIT_SUCCESS);
-            }
-            else
-            {
-                fatalError("fork");
-            }
-        }
+            // Close the main server socket to avoid interfering with the parent
+            close(server_fd);
+
+            setupHandlers();
+
+            // Deal with the client
+            cout << " > Player 1 = " << players[1].first << endl;
+            cout << " > Player 2 = " << players[2].first << endl;
+            cout << " > Player 3 = " << players[3].first << endl;
+            cout << " > Player 4 = " << players[4].first << endl;
+
+            cout << "\n\n GAME STARTING \n\n" << endl;
+
+            game(players,client_fd, client_fd2, client_fd3, client_fd4);
+
+            //attendRequest(client_fd);
+            // Close the new socket
+            close(client_fd);
+            close(client_fd2);
+            close(client_fd3);
+            close(client_fd4);
+
+
     }
 }
 
+
 /*
-    Hear the request from the client and send an answer
+    Game handler
 */
-void attendRequest(int client_fd)
+void game(map<int, pair<string, int>> &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
     char buffer[BUFFER_SIZE];
-    unsigned long int iterations;
-    // Variables used to calculate PI.
-    double result = 4;
-    int sign = -1;
-    unsigned long int divisor = 3;
-    unsigned long int counter = 0;
-     // Variables for polling
-    struct pollfd poll_fd[1];
-    int poll_response;
-    int timeout = 0;     // Timeout of one second
-    int client_signal = 0;
-    // Prepare for the poll
-    poll_fd[0].fd = client_fd;
-    poll_fd[0].events = POLLIN;
+    // Prepare buffer.
+    sprintf(buffer, "1 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd, buffer);
 
-    // RECV
-    // Receive the request
-    recvString(client_fd, buffer, BUFFER_SIZE);
-    sscanf(buffer, "%lu", &iterations);
-    printf(" > Got request from client with iterations=%lu\n", iterations);
-     
-    // Loop used to calculate PI while not interruptes.
-    while((counter < iterations) && !interrupted)
-    {
-        result += sign * (4.0/divisor);
-        sign *= -1;
-        divisor += 2;
 
-        // Listen to client signals.
-        poll_response = poll(poll_fd, 1, timeout);
-        if (poll_response == 0)     // Nothing to receive
-        {
-            fflush(stdout);  
-        }
-        else if (poll_response == -1)
-        {
-            perror("poll");
-            break;
-        }
-        else
-        {
-            if (poll_fd[0].revents & POLLIN)
-            {
-                // Receive client signal and break the loop.
-                recvString(client_fd, buffer, BUFFER_SIZE); 
-                sscanf(buffer, "%d", &client_signal);
-                printf("\n The client sent a signal.\n");
-                break;
-            }
-        }
-        counter++;
-    }
+    // Prepare buffer.
+    sprintf(buffer, "2 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd2, buffer);
 
-    // Prepare buffer.          
-    sprintf(buffer, "%d %lu %.20lf", client_signal, counter, result);
 
-    if (interrupted) 
+    // Prepare buffer.
+    sprintf(buffer, "3 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd3, buffer);
+
+
+    // Prepare buffer.
+    sprintf(buffer, "4 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd4, buffer);
+
+
+    if (interrupted)
     {
         printf(" The server was interrupted \n");
         // Send buffer.
-        sendString(client_fd, buffer); 
+        sendString(client_fd, buffer);
     }
-   
-    // Verify results.
-    printf(" > Sending PI=%.20lf\n", result);
-    printf(" > Number of iterations: %lu\n", counter);
 
-    // SEND
-    // Send the response
-    sendString(client_fd, buffer);
+
 }
 
 
@@ -270,4 +275,15 @@ void setupHandlers()
 void onInterrupt(int signal)
 {
     interrupted = 1;
+}
+
+void setPlayer(int client, map<int, pair<string, int>> &players, int i)
+{
+    char buffer[BUFFER_SIZE];
+    stringstream ss;
+
+    recvString(client, buffer, BUFFER_SIZE);
+    ss << buffer;
+    ss >> players[i].first;
+    cout << " > " << players[i].first << " connected" <<  endl;
 }
