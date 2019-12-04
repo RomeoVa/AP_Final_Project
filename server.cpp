@@ -48,6 +48,7 @@ void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, 
 void setupHandlers();
 void onInterrupt(int signal);
 void setPlayer(int client, map<int, pair<string, int> > &players, int i);
+void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -127,8 +128,8 @@ void waitForConnections(int server_fd)
     while (!interrupted)
     {
 
-
-            if (current_players == 2){
+            //Always start on 4 players
+            if (current_players == 4){
               break;
             }
 
@@ -154,7 +155,6 @@ void waitForConnections(int server_fd)
                     if (current_players == 0){
                         client_fd = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
-                        players.insert(make_pair(1, make_pair("Test", 0)));
                         setPlayer(client_fd, players, 1);
 
                         //break;
@@ -162,7 +162,6 @@ void waitForConnections(int server_fd)
                     else if (current_players == 1){
                         client_fd2 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
-                        players.insert(make_pair(2, make_pair("Test", 0)));
                         setPlayer(client_fd2, players, 2);
 
                         //break;
@@ -198,6 +197,7 @@ void waitForConnections(int server_fd)
             setupHandlers();
 
             // Deal with the client
+            // Show all 4 players
             cout << " > Player 1 = " << players[1].first << endl;
             cout << " > Player 2 = " << players[2].first << endl;
             cout << " > Player 3 = " << players[3].first << endl;
@@ -205,7 +205,7 @@ void waitForConnections(int server_fd)
 
             cout << "\n\n GAME STARTING \n\n" << endl;
 
-            game(players,client_fd, client_fd2, client_fd3, client_fd4);
+            game(players, client_fd, client_fd2, client_fd3, client_fd4);
 
             //attendRequest(client_fd);
             // Close the new socket
@@ -224,41 +224,8 @@ void waitForConnections(int server_fd)
 */
 void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
-    char buffer[BUFFER_SIZE];
-
-    string a = "test 1";
-    string b = "test 2";
-    // Prepare buffer.
-    sprintf(buffer, "%s", a);
-    // Send the response
-    sendString(client_fd, buffer);
-
-
-    // Prepare buffer.
-    sprintf(buffer, "%s", b);
-    // Send the response
-    sendString(client_fd2, buffer);
-
-
-    // Prepare buffer.
-    sprintf(buffer, "3 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
-    // Send the response
-    sendString(client_fd3, buffer);
-
-
-    // Prepare buffer.
-    sprintf(buffer, "4 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
-    // Send the response
-    sendString(client_fd4, buffer);
-
-
-    if (interrupted)
-    {
-        printf(" The server was interrupted \n");
-        // Send buffer.
-        sendString(client_fd, buffer);
-    }
-
+    //Send the players their turn and the starting hand
+    sendFirstHands(client_fd, client_fd2, client_fd3, client_fd4);
 
 }
 
@@ -285,8 +252,41 @@ void setPlayer(int client, map<int, pair<string, int> > &players, int i)
     char buffer[BUFFER_SIZE];
     stringstream ss;
 
+    // Recieve name from player
     recvString(client, buffer, BUFFER_SIZE);
+    //Change from char[] to string
     ss << buffer;
     ss >> players[i].first;
+    //Set cards to 7
+    players[i].second = 7;
     cout << " > " << players[i].first << " connected" <<  endl;
+}
+
+void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4)
+{
+    char buffer[BUFFER_SIZE];
+
+    // Prepare buffer.
+    sprintf(buffer, "1 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd, buffer);
+
+
+    // Prepare buffer.
+    sprintf(buffer, "2 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd2, buffer);
+
+
+    // Prepare buffer.
+    sprintf(buffer, "3 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd3, buffer);
+
+
+    // Prepare buffer.
+    sprintf(buffer, "4 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    // Send the response
+    sendString(client_fd4, buffer);
+
 }
