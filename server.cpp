@@ -128,7 +128,7 @@ void waitForConnections(int server_fd)
     {
 
 
-            if (current_players == 4){
+            if (current_players == 2){
               break;
             }
 
@@ -225,14 +225,17 @@ void waitForConnections(int server_fd)
 void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
     char buffer[BUFFER_SIZE];
+
+    string a = "test 1";
+    string b = "test 2";
     // Prepare buffer.
-    sprintf(buffer, "1 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    sprintf(buffer, "%s", a);
     // Send the response
     sendString(client_fd, buffer);
 
 
     // Prepare buffer.
-    sprintf(buffer, "2 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    sprintf(buffer, "%s", b);
     // Send the response
     sendString(client_fd2, buffer);
 
