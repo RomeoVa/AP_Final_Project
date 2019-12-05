@@ -1,5 +1,16 @@
 Mandar todo en buffer
 
-1) El turno y la mano
+1) El turno y la mano.
 turno:7cartas
 ie = "1:2:1:3:2:4:3:3:2:6:3:4:1:9:2"
+
+2) El turno, la carta actual, el numero de cartas a leer y las cartas.
+turno:1carta:cuantas_cartas:cartas
+ie = "2:4:1:1:5:3"
+"1:5:2:0"
+
+3) Si el usuario pide una carta, se manda "p"
+y se regresa como turno normal
+
+4) el usuario manda solo una carta
+ir = "5:2"

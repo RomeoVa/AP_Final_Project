@@ -226,6 +226,9 @@ void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, 
 {
     //Send the players their turn and the starting hand
     sendFirstHands(client_fd, client_fd2, client_fd3, client_fd4);
+    while(1){
+        printf(".");
+    }
 
 }
 
@@ -265,27 +268,32 @@ void setPlayer(int client, map<int, pair<string, int> > &players, int i)
 void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
     char buffer[BUFFER_SIZE];
+    vector< pair <int, int>> hand;
 
-    // Prepare buffer.
-    sprintf(buffer, "1 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    hand = player_hand();
+    vectorToString(&hand, buffer);
+    sprintf(buffer, "1:%s", buffer);
     // Send the response
     sendString(client_fd, buffer);
 
 
-    // Prepare buffer.
-    sprintf(buffer, "2 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    hand = player_hand();
+    vectorToString(&hand, buffer);
+    sprintf(buffer, "2:%s", buffer);
     // Send the response
     sendString(client_fd2, buffer);
 
 
-    // Prepare buffer.
-    sprintf(buffer, "3 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    hand = player_hand();
+    vectorToString(&hand, buffer);
+    sprintf(buffer, "3:%s", buffer);
     // Send the response
     sendString(client_fd3, buffer);
 
 
-    // Prepare buffer.
-    sprintf(buffer, "4 1:1:2:2:3:3:4:4:5:5:6:6:7:7");
+    hand = player_hand();
+    vectorToString(&hand, buffer);
+    sprintf(buffer, "4:%s", buffer);
     // Send the response
     sendString(client_fd4, buffer);
 
