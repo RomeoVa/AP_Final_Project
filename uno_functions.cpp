@@ -127,8 +127,9 @@ void vectorToString(vector<pair <int, int> > * hand,char  *buffer)
     }
     strcpy(buffer, hand_s.c_str());
 
-    cout<<"JHASKJdahk"<<buffer<<endl;
+    //cout<<"JHASKJdahk"<<buffer<<endl;
 }
+
 /*
 int main()
 {
@@ -190,4 +191,5 @@ int main()
 
     return 0;
 }
+
 */
