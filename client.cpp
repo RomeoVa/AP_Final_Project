@@ -183,14 +183,8 @@ void initGame(char *buffer, vector<pair<int,int> > *hand, char *turn)
     char *string,*number,*color;
     pair<int,int> card;
     
-    string = strtok(buffer, ":");
-    if(strncmp(string, "INIT", 5) != 0)
-    {
-        printf("Invalid client. Exiting!\n");
-        return;
 
-    }
-    turn = strtok(NULL, ":");
+    turn = strtok(buffer, ":");
 
     for(int i=0; i<7; i++)
     {
