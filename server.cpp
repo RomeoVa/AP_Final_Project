@@ -224,11 +224,17 @@ void waitForConnections(int server_fd)
 */
 void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
-    //Send the players their turn and the starting hand
+    char buffer[BUFFER_SIZE];
+
+    // Send the players their turn and the starting hand
     sendFirstHands(client_fd, client_fd2, client_fd3, client_fd4);
-    while(1){
-        printf(".");
-    }
+    // Recieve Confirmation of 4 players
+    recvString(client_fd, buffer, BUFFER_SIZE);
+    recvString(client_fd2, buffer, BUFFER_SIZE);
+    recvString(client_fd3, buffer, BUFFER_SIZE);
+    recvString(client_fd4, buffer, BUFFER_SIZE);
+
+
 
 }
 
@@ -268,32 +274,37 @@ void setPlayer(int client, map<int, pair<string, int> > &players, int i)
 void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4)
 {
     char buffer[BUFFER_SIZE];
+    char cards[BUFFER_SIZE];
     vector< pair <int, int>> hand;
 
     hand = player_hand();
-    vectorToString(&hand, buffer);
-    sprintf(buffer, "1:%s", buffer);
+    vectorToString(&hand, cards);
+    sprintf(buffer, "1:7:%s", cards);
+    printf("%s\n", buffer);
     // Send the response
     sendString(client_fd, buffer);
 
 
     hand = player_hand();
-    vectorToString(&hand, buffer);
-    sprintf(buffer, "2:%s", buffer);
+    vectorToString(&hand, cards);
+    sprintf(buffer, "2:7:%s", cards);
+    printf("%s\n", buffer);
     // Send the response
-    sendString(client_fd2, buffer);
+    sendString(client_fd2, cards);
 
 
     hand = player_hand();
-    vectorToString(&hand, buffer);
-    sprintf(buffer, "3:%s", buffer);
+    vectorToString(&hand, cards);
+    sprintf(buffer, "3:7:%s", cards);
+    printf("%s\n", buffer);
     // Send the response
     sendString(client_fd3, buffer);
 
 
     hand = player_hand();
-    vectorToString(&hand, buffer);
-    sprintf(buffer, "4:%s", buffer);
+    vectorToString(&hand, cards);
+    sprintf(buffer, "4:7:%s", cards);
+    printf("%s\n", buffer);
     // Send the response
     sendString(client_fd4, buffer);
 
