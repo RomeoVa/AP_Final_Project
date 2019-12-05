@@ -44,11 +44,14 @@
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void waitForConnections(int server_fd);
-void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4);
+void game(map<int, pair<string, int> > &players, vector <int> &clients);
 void setupHandlers();
 void onInterrupt(int signal);
 void setPlayer(int client, map<int, pair<string, int> > &players, int i);
-void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4);
+void sendFirstHands(vector <int> &clients);
+void confirmations(vector <int> &clients);
+void sendNames( map<int, pair<string, int> > &players, vector <int> &clients);
+void turnHandle ( map<int, pair<string, int> > &players, vector <int> &clients);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -101,6 +104,7 @@ void waitForConnections(int server_fd)
     struct sockaddr_in client_address;
     socklen_t client_address_size;
     char client_presentation[INET_ADDRSTRLEN];
+    vector <int> clients;
     int client_fd;
     int client_fd2;
     int client_fd3;
@@ -108,9 +112,6 @@ void waitForConnections(int server_fd)
 
     //Variables for clients
     map<int, pair<string, int> > players;
-    vector<int> turns;
-    bool direction;
-    pair<int, int> current;
     int current_players = 0;
 
 
@@ -118,6 +119,7 @@ void waitForConnections(int server_fd)
     struct pollfd poll_fd[1];
     int poll_response;
     int timeout = 1000;     // Timeout of one second
+    int starter = 10;
 
     // Prepare for the poll
     poll_fd[0].fd = server_fd;
@@ -129,15 +131,19 @@ void waitForConnections(int server_fd)
     {
 
             //Always start on 4 players
-            if (current_players == 4){
+            if (current_players == 4 || starter == -1)
+            {
               break;
             }
 
             poll_response = poll(poll_fd, 1, timeout);
             if (poll_response == 0)     // Nothing to receive
             {
-                //printf(".");
-                fflush(stdout);
+                if (current_players >= 2){
+                    printf("\rGame starting in %d\n", starter);
+                    fflush(stdout);
+                    starter--;
+                }
             }
             else if (poll_response == -1)
             {
@@ -150,12 +156,14 @@ void waitForConnections(int server_fd)
                 if (poll_fd[0].revents & POLLIN)
                 {
                     // ACCEPT
+                    starter = 10;
                     cout << "The number of players = " << current_players + 1 << endl;
                     // Get the file descriptor to talk with the client
                     if (current_players == 0){
                         client_fd = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
                         setPlayer(client_fd, players, 1);
+                        clients.push_back(client_fd);
 
                         //break;
                     }
@@ -163,6 +171,7 @@ void waitForConnections(int server_fd)
                         client_fd2 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
                         setPlayer(client_fd2, players, 2);
+                        clients.push_back(client_fd2);
 
                         //break;
                     }
@@ -170,6 +179,7 @@ void waitForConnections(int server_fd)
                         client_fd3 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
                         setPlayer(client_fd3, players, 3);
+                        clients.push_back(client_fd3);
 
                         //break;
                     }
@@ -177,6 +187,7 @@ void waitForConnections(int server_fd)
                         client_fd4 = accept(server_fd, (struct sockaddr *) &client_address, &client_address_size);
                         current_players++;
                         setPlayer(client_fd4, players, 4);
+                        clients.push_back(client_fd4);
 
                         //break;
                     }
@@ -198,17 +209,14 @@ void waitForConnections(int server_fd)
 
             // Deal with the client
             // Show all 4 players
-            cout << " > Player 1 = " << players[1].first << endl;
-            cout << " > Player 2 = " << players[2].first << endl;
-            cout << " > Player 3 = " << players[3].first << endl;
-            cout << " > Player 4 = " << players[4].first << endl;
-
+            for (int i = 1; i <= clients.size(); i++){
+                cout << " > Player " << i << " = " << players[i].first << endl;
+            }
             cout << "\n\n GAME STARTING \n\n" << endl;
 
-            game(players, client_fd, client_fd2, client_fd3, client_fd4);
+            game(players, clients);
 
-            //attendRequest(client_fd);
-            // Close the new socket
+            // Close the socket
             close(client_fd);
             close(client_fd2);
             close(client_fd3);
@@ -222,18 +230,33 @@ void waitForConnections(int server_fd)
 /*
     Game handler
 */
-void game(map<int, pair<string, int> > &players, int client_fd, int client_fd2, int client_fd3, int client_fd4)
+void game(map<int, pair<string, int> > &players, vector <int> &clients)
 {
-    char buffer[BUFFER_SIZE];
+    // Game variables
+    int who_plays = 1;
+    vector<int> turns;
+    bool direction = true;
+    pair<int, int> current;
+
+    // Fill turns vector
+    for (int i = 0: i < clients.size(); i++){
+        turns.push_back(i + 1);
+    }
 
     // Send the players their turn and the starting hand
-    sendFirstHands(client_fd, client_fd2, client_fd3, client_fd4);
+    sendFirstHands(clients);
     // Recieve Confirmation of 4 players
-    recvString(client_fd, buffer, BUFFER_SIZE);
-    recvString(client_fd2, buffer, BUFFER_SIZE);
-    recvString(client_fd3, buffer, BUFFER_SIZE);
-    recvString(client_fd4, buffer, BUFFER_SIZE);
+    confirmations(clients);
+    // Send all names
+    sendNames(players, clients);
+    // Recieve Confirmation of 4 players
+    confirmations(clients);
 
+    // Game starts
+    while (!interrupted)
+    {
+        turnHandle(players, clients);
+    }
 
 
 }
@@ -256,6 +279,7 @@ void onInterrupt(int signal)
     interrupted = 1;
 }
 
+// Set players and names
 void setPlayer(int client, map<int, pair<string, int> > &players, int i)
 {
     char buffer[BUFFER_SIZE];
@@ -271,41 +295,69 @@ void setPlayer(int client, map<int, pair<string, int> > &players, int i)
     cout << " > " << players[i].first << " connected" <<  endl;
 }
 
-void sendFirstHands(int client_fd, int client_fd2, int client_fd3, int client_fd4)
+// Send first hand to each player
+void sendFirstHands(vector <int> &clients)
 {
     char buffer[BUFFER_SIZE];
     char cards[BUFFER_SIZE];
     vector< pair <int, int>> hand;
 
-    hand = player_hand();
-    vectorToString(&hand, cards);
-    sprintf(buffer, "1:7:%s", cards);
-    printf("%s\n", buffer);
-    // Send the response
-    sendString(client_fd, buffer);
+    cout << "Sending first cards to players" << endl;
+
+    for (int i = 1; i <= clients.size(); i++){
+        hand = player_hand();
+        vectorToString(&hand, cards);
+        sprintf(buffer, "%d:7:%s", i, cards);
+        printf("%s\n", buffer);
+        // Send the response
+        sendString(clients[i-1], buffer);
+    }
+
+}
+
+// Recieve confirmations
+void confirmations(vector <int> &clients)
+{
+    char buffer[BUFFER_SIZE];
+
+    for (int i = 0; i < clients.size(); i++){
+        recvString(clients[i], buffer, BUFFER_SIZE);
+    }
+
+    cout << "All confirmations recieved" << endl;
+}
+
+// Send all names to each player
+void sendNames( map<int, pair<string, int> > &players, vector <int> &clients)
+{
+    char buffer[BUFFER_SIZE];
+    string names = players[1].first;
+
+    // Make name string
+    for (int i = 2; i <= clients.size(); i++){
+        names += ":" + players[i].first;
+    }
 
 
-    hand = player_hand();
-    vectorToString(&hand, cards);
-    sprintf(buffer, "2:7:%s", cards);
-    printf("%s\n", buffer);
-    // Send the response
-    sendString(client_fd2, cards);
+    // Cast to char []
+    strcpy(buffer, names.c_str());
 
+    // Send names
+    for (int i = 0; i < clients.size(); i++){
+        sendString(clients[i], buffer);
+    }
 
-    hand = player_hand();
-    vectorToString(&hand, cards);
-    sprintf(buffer, "3:7:%s", cards);
-    printf("%s\n", buffer);
-    // Send the response
-    sendString(client_fd3, buffer);
+    printf("Names buffer = %s\n", buffer);
+}
 
+// Turn handle
+void turnHandle ( map<int, pair<string, int> > &players, vector <int> &clients)
+{
+    sendTurn()
+}
 
-    hand = player_hand();
-    vectorToString(&hand, cards);
-    sprintf(buffer, "4:7:%s", cards);
-    printf("%s\n", buffer);
-    // Send the response
-    sendString(client_fd4, buffer);
+// Send turn
+void sendTurn()
+{
 
 }
