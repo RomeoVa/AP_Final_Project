@@ -8,11 +8,12 @@ using namespace std;
 #define MAX 7
 #define BUFFER_SIZE 1024
 
-void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card);
+void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int num_players);
 std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  hand);
 std::vector<sf::Text> createTexts(vector<pair <int, int> > *  hand);
 sf::Color getRectangleColor(int color);
 sf::RectangleShape createCurrentRectangle(pair <int,int> *current_card);
+pair<int,int> getCoords(int player);
 
 
 
@@ -23,6 +24,7 @@ int main()
 
     std::vector<sf::RectangleShape> rectangles;
     std::vector<sf::Text> texts;
+    std::vector<pair<string,int>> players;
     sf::RectangleShape  *current;
     //sf::Text texts[MAX];
     sf::Text *current_text;
@@ -30,9 +32,11 @@ int main()
 
     current_card.first = 4;
     current_card.second = 2;
+    players.push_back(make_pair("Mau",6));
+    players.push_back(make_pair("Romeo",5));
+    players.push_back(make_pair("Pablo",3));
+    players.push_back(make_pair("Gil",5));
 
-
-  
 
 
     hand = player_hand();
@@ -48,24 +52,25 @@ int main()
     //rectangles = createRectangles(&hand);
     //texts = createTexts(&hand);
     //createVisualCards(cards);
-    renderWindow(&hand,&current_card);
+    renderWindow(&hand,&current_card, &players,4);
 
 
     return 0;
 }
 
-void renderWindow(vector<pair <int, int> > *  hand,pair <int, int> * current_card)
+void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int num_players)
 {
     std::vector<sf::RectangleShape> rectangles;
     sf::RectangleShape current_rectangle;
     std::vector<sf::Text> texts;
     sf::Text current_text;
     sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
-
+    std::vector<sf::Text> names_texts;
+    names_texts.resize(players->size());
 
     int x_text = 25;
     sf::Font font;
-    string number, current_number;
+    string number, current_number,name;
     font.loadFromFile("arial.ttf");
 
     rectangles = createRectangles(hand);
@@ -86,6 +91,25 @@ void renderWindow(vector<pair <int, int> > *  hand,pair <int, int> * current_car
         x_text+= 50;
         //cout<<"Sale del FOR"<<i<<endl;
     }
+    
+    int x, y;
+    for(int i = 0;i < players->size();i++)
+    {
+        x = getCoords(i).first;
+        y = getCoords(i).second;
+        name = players->at(i).first;
+        name+=":\n";
+        name+= to_string( players->at(i).second);
+        //texts.push_back(text);
+        cout<<"ENTRA AL FOR del nombre"<<i<<endl;
+        names_texts[i].setPosition(sf::Vector2f(x,y));
+        names_texts[i].setFont(font);
+        names_texts[i].setCharacterSize(20);
+        names_texts[i].setString(name);
+        //x_text+= 50;
+        //cout<<"Sale del FOR"<<i<<endl;
+    }
+
     current_number = to_string(current_card->first);
     current_text.setPosition(sf::Vector2f(500,300));
     current_text.setFont(font);
@@ -118,6 +142,15 @@ void renderWindow(vector<pair <int, int> > *  hand,pair <int, int> * current_car
             window.draw(texts[i]);
         }
 
+          for(int i = 0;i < players->size();i++)
+        {
+            //cout<<"ENTRA AL ARREGLO"<<endl;
+            //window.draw(texts[i]);
+            //cout << texts[i].getString().toAnsiString() << endl;
+           
+            window.draw(names_texts[i]);
+        }
+
         window.display();
     }
 }
@@ -126,18 +159,6 @@ std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  han
 {
     std::vector<sf::RectangleShape> rectangles;
     sf::RectangleShape rectangle;
-    // sf::Text text;
-    // sf::Font font;
-    // font.loadFromFile("arial.ttf");
-    // current_text.setPosition(sf::Vector2f(500,300));
-    // current_text.setFont(font);
-    // current_text.setCharacterSize(20);
-    // current_text.setString("jhff");
-    // current.setPosition(sf::V
-    // current.setSize(sf::Vector2f(50,100));
-    // current.setFillColor(sf::Color(128,128,128,128));
-    // current.setOutlineColor(sf::Color(255,255,255));
-    // current.setOutlineThickness(2.0);
      int x = 10;
     int y = 10;
     int x_text = 25;
@@ -167,9 +188,6 @@ sf::RectangleShape createCurrentRectangle(pair <int,int> * current_card)
 {
     sf::RectangleShape current_rectangle;
     cout<<"ENTRA AL CURRENT"<<endl;
-    
-  
-
     current_rectangle.setPosition(sf::Vector2f(480,260));
     current_rectangle.setSize(sf::Vector2f(50,100));
     current_rectangle.setFillColor(getRectangleColor(current_card->second));
@@ -204,5 +222,31 @@ sf::Color getRectangleColor(int id_color)
     }
 
     return color;
+}
+
+pair<int,int> getCoords(int player)
+{
+    pair<int,int> coords;
+    if(player == 0)
+    {
+        coords.first = 500;
+        coords.second = 120;
+    }
+    else if(player == 1)
+    {
+        coords.first = 900;
+        coords.second = 300;
+    }
+    else if(player == 2)
+    {
+        coords.first = 500;
+        coords.second = 550;
+    }
+    else if(player == 3)
+    {
+        coords.first = 10;
+        coords.second = 300;
+    }
+    return coords;
 }
 
