@@ -8,12 +8,14 @@ using namespace std;
 #define MAX 7
 #define BUFFER_SIZE 1024
 
-void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int num_players);
+void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn);
 std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  hand);
 std::vector<sf::Text> createTexts(vector<pair <int, int> > *  hand);
 sf::Color getRectangleColor(int color);
 sf::RectangleShape createCurrentRectangle(pair <int,int> *current_card);
 pair<int,int> getCoords(int player);
+pair<int,int> getTurnCoords(int turn);
+
 
 
 
@@ -52,25 +54,25 @@ int main()
     //rectangles = createRectangles(&hand);
     //texts = createTexts(&hand);
     //createVisualCards(cards);
-    renderWindow(&hand,&current_card, &players,4);
+    renderWindow(&hand,&current_card, &players,1);
 
 
     return 0;
 }
 
-void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int num_players)
+void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn)
 {
     std::vector<sf::RectangleShape> rectangles;
     sf::RectangleShape current_rectangle;
     std::vector<sf::Text> texts;
-    sf::Text current_text;
+    sf::Text current_text, turn_text;
     sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
     std::vector<sf::Text> names_texts;
     names_texts.resize(players->size());
 
     int x_text = 25;
     sf::Font font;
-    string number, current_number,name;
+    string number, current_number,name,turn_string;
     font.loadFromFile("arial.ttf");
 
     rectangles = createRectangles(hand);
@@ -92,7 +94,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
         //cout<<"Sale del FOR"<<i<<endl;
     }
     
-    int x, y;
+    int x, y,x_turn,y_turn;
     for(int i = 0;i < players->size();i++)
     {
         x = getCoords(i).first;
@@ -110,11 +112,20 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
         //cout<<"Sale del FOR"<<i<<endl;
     }
 
+   
+
     current_number = to_string(current_card->first);
     current_text.setPosition(sf::Vector2f(500,300));
     current_text.setFont(font);
     current_text.setCharacterSize(20);
     current_text.setString(current_number);
+
+    x_turn = getTurnCoords(turn).first;
+    y_turn = getTurnCoords(turn).second;
+    turn_text.setPosition(sf::Vector2f(x_turn,y_turn));
+    turn_text.setFont(font);
+    turn_text.setCharacterSize(20);
+    turn_text.setString("->");
     
     cout<<"ENTRA A LA FUNCION"<<endl;
     
@@ -132,6 +143,8 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
 
         window.draw(current_rectangle);
         window.draw(current_text);
+        window.draw(turn_text);
+
 
         for(int i = 0;i < hand->size();i++)
         {
@@ -250,3 +263,28 @@ pair<int,int> getCoords(int player)
     return coords;
 }
 
+pair<int,int> getTurnCoords(int turn)
+{
+    pair<int,int> coords;
+    if(turn == 0)
+    {
+        coords.first = 500-20;
+        coords.second = 120;
+    }
+    else if(turn == 1)
+    {
+        coords.first = 900-20;
+        coords.second = 300;
+    }
+    else if(turn == 2)
+    {
+        coords.first = 500-20;
+        coords.second = 550;
+    }
+    else if(turn == 3)
+    {
+        coords.first = 10-20;
+        coords.second = 300;
+    }
+    return coords;
+}
