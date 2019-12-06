@@ -13,3 +13,21 @@ y se regresa como turno normal
 
 4) el usuario manda solo una carta
 ir = "5:2"
+
+Cartas
+-------------
+-2 = Toma 4
+-1 = Comodin
+0-9 = Numero
+10 = Brincar
+11 = Reversa
+12 = Toma 2
+
+
+Colores
+-------------
+0 = Negro
+1 = Rojo
+2 = Azul
+3 = Verde
+4 = Amarillo
