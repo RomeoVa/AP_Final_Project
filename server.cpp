@@ -50,8 +50,12 @@ void onInterrupt(int signal);
 void setPlayer(int client, map<int, pair<string, int> > &players, int i);
 void sendFirstHands(vector <int> &clients);
 void confirmations(vector <int> &clients);
+pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who, vector <int> &clients, pair<int, int> &current);
 void sendNames( map<int, pair<string, int> > &players, vector <int> &clients);
-void turnHandle ( map<int, pair<string, int> > &players, vector <int> &clients);
+void turnHandle ( map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current);
+void sendTurn(string s, vector <int> &clients);
+string createString(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current);
+string createRequest(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -140,7 +144,7 @@ void waitForConnections(int server_fd)
             if (poll_response == 0)     // Nothing to receive
             {
                 if (current_players >= 2){
-                    printf("\rGame starting in %d\n", starter);
+                    printf("\rGame starting in %d          ", starter);
                     fflush(stdout);
                     starter--;
                 }
@@ -209,9 +213,11 @@ void waitForConnections(int server_fd)
 
             // Deal with the client
             // Show all 4 players
+            cout << endl;
             for (int i = 1; i <= clients.size(); i++){
                 cout << " > Player " << i << " = " << players[i].first << endl;
             }
+
             cout << "\n\n GAME STARTING \n\n" << endl;
 
             game(players, clients);
@@ -234,14 +240,9 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
 {
     // Game variables
     int who_plays = 1;
-    vector<int> turns;
     bool direction = true;
-    pair<int, int> current;
+    pair <int, int> current = get_card();
 
-    // Fill turns vector
-    for (int i = 0: i < clients.size(); i++){
-        turns.push_back(i + 1);
-    }
 
     // Send the players their turn and the starting hand
     sendFirstHands(clients);
@@ -255,7 +256,36 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
     // Game starts
     while (!interrupted)
     {
-        turnHandle(players, clients);
+        // If a player wins, send his user
+        for (int i = 1; i <= clients.size(); i++){
+            if (players[i].second == 0){
+                cout << " > Player " << i << " wins." << endl;
+                break;
+            }
+        }
+        turnHandle(players, clients, who_plays, current);
+
+        // If a reverse is played
+        if (current.first == 11){
+            direction = !direction;
+        }
+
+        if (direction){
+            who_plays++;
+            if (who_plays > clients.size())
+            {
+                who_plays = 1;
+            }
+        }
+        else{
+            who_plays--;
+            if (who_plays = 0)
+            {
+                who_plays = clients.size();;
+            }
+        }
+
+        //break;
     }
 
 
@@ -296,7 +326,7 @@ void setPlayer(int client, map<int, pair<string, int> > &players, int i)
 }
 
 // Send first hand to each player
-void sendFirstHands(vector <int> &clients)
+void sendFirstHands(vector<int> &clients)
 {
     char buffer[BUFFER_SIZE];
     char cards[BUFFER_SIZE];
@@ -327,11 +357,65 @@ void confirmations(vector <int> &clients)
     cout << "All confirmations recieved" << endl;
 }
 
+// Handle users
+pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who, vector <int> &clients, pair<int, int> &current)
+{
+    char buffer[BUFFER_SIZE];
+    int number;
+    int color;
+    pair<int, int> new_card;
+    string request;
+
+    for (int i = 0; i < clients.size(); i++)
+    {
+        if (who == (i + 1))
+        {
+            recvString(clients[i], buffer, BUFFER_SIZE);
+            // if player needs a new card
+            if ((strcmp(buffer,"p") == 0))
+            {
+                request = createRequest(players, clients, who, current);
+                sendTurn(request, clients);
+                new_card = gameConfirmations(players, who, clients, current);
+                break;
+
+            }
+            // lee la carta
+            while (1){
+                number = (atoi(strtok(buffer,":")));
+                color = (atoi(strtok(NULL,":")));
+                new_card = make_pair(number, color);
+                if (verifyCard(&new_card, &current)){
+                    sprintf(buffer, "Ok");
+                    sendString(clients[i], buffer);
+                    recvString(clients[i], buffer, BUFFER_SIZE);
+                    players[i+1].second--;
+                    break;
+                }
+                sprintf(buffer, "No");
+                sendString(clients[i], buffer);
+                recvString(clients[i], buffer, BUFFER_SIZE);
+            }
+        }
+        else
+        {
+            recvString(clients[i], buffer, BUFFER_SIZE);
+        }
+
+    }
+
+    cout << "All confirmations recieved and new current card set" << endl;
+    return new_card;
+
+
+}
+
 // Send all names to each player
 void sendNames( map<int, pair<string, int> > &players, vector <int> &clients)
 {
     char buffer[BUFFER_SIZE];
-    string names = players[1].first;
+    string client_num = "" + to_string(clients.size());
+    string names = client_num + ":" + players[1].first;
 
     // Make name string
     for (int i = 2; i <= clients.size(); i++){
@@ -351,13 +435,90 @@ void sendNames( map<int, pair<string, int> > &players, vector <int> &clients)
 }
 
 // Turn handle
-void turnHandle ( map<int, pair<string, int> > &players, vector <int> &clients)
+void turnHandle ( map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current)
 {
-    sendTurn()
+    // Create a string
+    string temp = createString(players, clients, who, current);
+    sendTurn(temp, clients);
+    current = gameConfirmations(players, who, clients, current);
+
 }
 
 // Send turn
-void sendTurn()
+void sendTurn(string s, vector <int> &clients)
 {
+    char buffer[BUFFER_SIZE];
 
+    cout << "Sending current turn to each player" << endl;
+
+    // Cast to char []
+    strcpy(buffer, s.c_str());
+
+    for (int i = 0; i < clients.size(); i++){
+        sendString(clients[i], buffer);
+    }
+
+    printf("%s\n", buffer);
+}
+
+// Create a string that will be sent
+string createString(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current)
+{
+    //Create buffer
+     string temp = to_string(who);
+     pair <int, int> card;
+
+    for (int i = 1; i <= clients.size(); i++)
+    {
+        if (current.first == -2){
+            players[i].second += 4;
+        }
+        else if (current.first == 12){
+            players[i].second += 2;
+        }
+        temp += ":" + to_string(players[i].second);
+    }
+
+    temp += ":" + to_string(current.first) + ":" + to_string(current.second);
+
+    if (current.first == -2){
+        temp += ":4";
+        for (int i = 0; i < 4; i++){
+            card = get_card();
+            temp += ":" + to_string(card.first) + ":" + to_string(card.second);
+        }
+    }
+    else if (current.first == 12){
+        temp += ":2";
+        for (int i = 0; i < 2; i++){
+            card = get_card();
+            temp += ":" + to_string(card.first) + ":" + to_string(card.second);
+        }
+    }
+
+    return temp;
+}
+
+// Create a string with a player requested card
+string createRequest(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current)
+{
+    //Create buffer
+     string temp = to_string(who);
+     pair <int, int> card;
+
+    for (int i = 1; i <= clients.size(); i++)
+    {
+        if (i == who)
+        {
+            players[i].second += 1;
+        }
+        temp += ":" + to_string(players[i].second);
+    }
+
+    card = get_card();
+
+    temp += ":" + to_string(current.first) + ":" + to_string(current.second) + ":1:" + to_string(card.first) + ":" + to_string(card.second);
+
+
+    return temp;
 }
