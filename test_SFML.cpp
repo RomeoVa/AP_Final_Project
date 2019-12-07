@@ -23,7 +23,7 @@ int main()
     char cards[BUFFER_SIZE];
     std::vector<sf::RectangleShape> rectangles;
     std::vector<sf::Text> texts;
-    std::vector<pair<string,int>> players;
+    std::vector<pair<string,int> > players;
     sf::RectangleShape  *current;
     sf::Text *current_text;
     pair <int,int> current_card;

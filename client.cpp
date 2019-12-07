@@ -340,7 +340,7 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
     if(option >= 0 && option < hand->size())
     {
         // Change wildcard colors
-        if (hant->at(option).second == 0)
+        if (hand->at(option).second == 0)
         {
             printf("Please select one of the 4 colors\n");
             printf(" 1 - Red\n");
@@ -351,15 +351,18 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
             // Validate color
             while (color < 1 || color > 4)
             {
-                scanf("%d\n", color);
+                scanf("%d", &color);
             }
-            hant->at(option).second = color;
+            hand->at(option).second = color;
 
 
         }
         printf("op:%d\n",option);
+        printf("Antes:\n");
         sprintf(buffer,"%d:%d",hand->at(option).first,hand->at(option).second);
+        printf("En medio:\n");
         sendString(connection_fd, buffer);
+        printf("Despues:\n");
 
         recvString(connection_fd, buffer, BUFFER_SIZE);
 
@@ -377,9 +380,9 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
 
 void printMyCards(vector<pair<int,int> > hand)
 {
+    printf("***** My cards ******\n");
     for(int i=0; i<hand.size(); i++)
     {
-        printf("My cards\n");
         printf("%d-> %d %d\n",i+1,hand[i].first,hand[i].second);
 
     }
