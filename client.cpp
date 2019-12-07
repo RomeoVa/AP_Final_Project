@@ -158,7 +158,7 @@ void attendRequest(int connection_fd)
                 if(strncmp(text, "TURN", 5) != 0)
                 {
                     text = strtok(NULL, ":");
-                    printf("The winner is: %s", text);
+                    printf("The winner is: %s\n", text);
                     break;
 
                 }
