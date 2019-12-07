@@ -40,7 +40,7 @@ int main()
 }
 */
 
-void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn)
+void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn,  sf::RenderWindow * window)
 {
     std::vector<sf::RectangleShape> rectangles;
     sf::RectangleShape current_rectangle;
@@ -48,7 +48,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     std::vector<sf::Text> decisions_texts;
     sf::Text current_text, turn_text;
 
-    sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
+    //sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
 
     std::vector<sf::Text> names_texts;
     sf::Font font;
@@ -56,7 +56,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     int x, y,x_turn,y_turn;
     int x_text = 25;
 
-    window.setPosition(sf::Vector2i(0,20));
+    //window.setPosition(sf::Vector2i(0,20));
     names_texts.resize(players->size());
     font.loadFromFile("arial.ttf");
     rectangles = createRectangles(hand);
@@ -108,35 +108,28 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     turn_text.setCharacterSize(20);
     turn_text.setString(getArrowTurn(turn));
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
+  
 
         sf::Color darkGreyGreen(10, 30, 10, 255);
-        window.clear(darkGreyGreen);
+        window->clear(darkGreyGreen);
 
-        window.draw(current_rectangle);
-        window.draw(current_text);
-        window.draw(turn_text);
+        window->draw(current_rectangle);
+        window->draw(current_text);
+        window->draw(turn_text);
 
         for(int i = 0;i < hand->size();i++)
         {
-            window.draw(rectangles[i]);
-            window.draw(texts[i]);
-            window.draw(decisions_texts[i]);
+            window->draw(rectangles[i]);
+            window->draw(texts[i]);
+            window->draw(decisions_texts[i]);
         }
 
         for(int i = 0;i < players->size();i++)
         {           
-            window.draw(names_texts[i]);
+            window->draw(names_texts[i]);
         }
-        window.display();
-    }
+        window->display();
+    
 }
 
 std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  hand)
@@ -264,6 +257,22 @@ string getSpecialCard(string number)
     if(number == "12")
     {
         number = "+2";
+    }
+    else if(number == "10")
+    {
+        number = "J";
+    }
+    else if(number == "11")
+    {
+        number = "R";
+    }
+    else if(number == "-1")
+    {
+        number = "C";
+    }
+    else if(number == "-2")
+    {
+        number = "+4";
     }
     return number;
 }

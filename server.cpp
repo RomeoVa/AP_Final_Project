@@ -63,6 +63,7 @@ int interrupted = 0;
 int main(int argc, char * argv[])
 {
     int server_fd;
+    srand(time(NULL));
 
     printf("\n=== UNO++ Server ===\n");
 

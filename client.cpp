@@ -148,56 +148,69 @@ void attendRequest(int connection_fd)
 
             sendConfirmation(buffer,connection_fd);
         
-            while(!interrupted)
+            sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
+            window.setPosition(sf::Vector2i(0,20));
+
+            while (window.isOpen())
             {
-                
-                //Recive current turn
-                recvString(connection_fd, buffer, BUFFER_SIZE);
-            
-                text = strtok(buffer, ":");
-                if(strncmp(text, "TURN", 5) != 0)
+                sf::Event event;
+                while (window.pollEvent(event))
                 {
-                    text = strtok(NULL, ":");
-                    printf("The winner is: %s\n", text);
-                    break;
-
+                    if (event.type == sf::Event::Closed)
+                        window.close();
                 }
-                
-                dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
-                renderWindow(&hand,&current_card,&players_names,(current_turn -1));
 
-                if(my_turn == current_turn)
+                while(!interrupted)
                 {
-                    while(1)
+                    
+                    //Recive current turn
+                    recvString(connection_fd, buffer, BUFFER_SIZE);
+                
+                    text = strtok(buffer, ":");
+                    if(strncmp(text, "TURN", 5) != 0)
                     {
-                        printMyCards(hand);
-                        printf("0. Ask card\nn. Card number\n Your turn: ");
-                        scanf("%d",&option);
-
-                        if(option == 0)
-                        {
-                            sprintf(buffer,"p");
-                            sendString(connection_fd, buffer);
-                            break;
-
-                        }else
-                        {
-                            if(makeMove(connection_fd ,option-1, &hand))
-                            {
-                                deleteCardAtPosition(&hand,option-1);
-                                break;
-                            }
-
-                            printf("Invalid card\n");
-
-                        }
+                        text = strtok(NULL, ":");
+                        printf("The winner is: %s\n", text);
+                        break;
 
                     }
-                }else{
-                    sendConfirmation(buffer,connection_fd);
+                    
+                    dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
+                    renderWindow(&hand,&current_card,&players_names,(current_turn -1),&window);
+
+                    if(my_turn == current_turn)
+                    {
+                        while(1)
+                        {
+                            printMyCards(hand);
+                            printf("0. Ask card\nn. Card number\n Your turn: ");
+                            scanf("%d",&option);
+
+                            if(option == 0)
+                            {
+                                sprintf(buffer,"p");
+                                sendString(connection_fd, buffer);
+                                break;
+
+                            }else
+                            {
+                                if(makeMove(connection_fd ,option-1, &hand))
+                                {
+                                    deleteCardAtPosition(&hand,option-1);
+                                    break;
+                                }
+
+                                printf("Invalid card\n");
+
+                            }
+
+                        }
+                    }else{
+                        sendConfirmation(buffer,connection_fd);
+                    }
+
+
                 }
-
-
             }
 
         }
