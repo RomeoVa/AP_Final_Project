@@ -147,14 +147,12 @@ void attendRequest(int connection_fd)
 
             sendConfirmation(buffer,connection_fd);
 
-            while(1)
+            while(!interrupted)
             {
-                printf("Entro\n");
+                
                 //Recive current turn
                 recvString(connection_fd, buffer, BUFFER_SIZE);
-                printf("Salida\n");
-
-                printf("%s\n",buffer);
+            
                 text = strtok(buffer, ":");
                 if(strncmp(text, "TURN", 5) != 0)
                 {
@@ -163,9 +161,8 @@ void attendRequest(int connection_fd)
                     break;
 
                 }
-                //printf("2.%s\n",buffer);
+                
                 dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
-                cout<<"NOMBRE"<<players_names[0].first<<endl;
                 renderWindow(&hand,&current_card,&players_names,(current_turn -1));
 
                 if(my_turn == current_turn)
@@ -206,48 +203,6 @@ void attendRequest(int connection_fd)
 
     }
 
-
-
-    // While not interrupted receive signals from the server.
-    /*while(!interrupted)
-    {
-        poll_response = poll(poll_fd, 1, timeout);
-        if (poll_response == 0)     // Nothing to receive
-        {
-            fflush(stdout);
-        }
-        else if (poll_response == -1)
-        {
-            perror("poll");
-            // Exit the inner loop
-            break;
-        }
-        else
-        {
-            if (poll_fd[0].revents & POLLIN)
-            {
-                recvString(connection_fd, buffer, BUFFER_SIZE);
-                sscanf(buffer, "%d", &server_signal);
-                break;
-            }
-        }
-    }*/
-
-    /* If interrupted, send signal to the server.
-    if (interrupted)
-    {
-        printf("\n > Interrupted by a signal. Sending to the server.\n");
-        sprintf(buffer, "%d", interrupted);
-        sendString(connection_fd, buffer);
-        recvString(connection_fd, buffer, BUFFER_SIZE);
-    }
-
-    // Receive the request
-    if (server_signal) {
-        printf("\n > The server was interrupted, Here are the results.\n");
-    }
-
-    */
 }
 
 void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
@@ -257,7 +212,6 @@ void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
     *turn = atoi(strtok(buffer, ":"));
 
     saveCards(buffer,hand);
-    //sscanf(buffer, "%d", &player, );
 
 }
 
@@ -275,7 +229,6 @@ void saveCards(char *buffer, vector<pair<int,int> > *hand)
         color = strtok (NULL, ":");
 
         card = make_pair(atoi(number),atoi(color));
-        //printf("1: %d 2: %d\n", card.first, card.second);
         hand->push_back(card);
 
     }
@@ -306,18 +259,16 @@ void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn
 
 void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int *total_players)
 {
-    string player_name;
-    stringstream ss;
+    char *player_name;
 
     *total_players = atoi(strtok(buffer, ":"));
 
     for(int i=0; i<*total_players; i++)
     {
-        ss << strtok(NULL, ":");
-        ss >> player_name;
-
+        player_name = strtok(NULL, ":");
+        
         players_names->push_back(make_pair(player_name,0));
-
+        
     }
 
 }
@@ -353,13 +304,11 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
 
 
         }
-        printf("op:%d\n",option);
-        printf("Antes:\n");
+     
         sprintf(buffer,"%d:%d",hand->at(option).first,hand->at(option).second);
-        printf("En medio:\n");
+        
         sendString(connection_fd, buffer);
-        printf("Despues:\n");
-
+     
         recvString(connection_fd, buffer, BUFFER_SIZE);
 
         if(strncmp(buffer, "No", 3) != 0)
