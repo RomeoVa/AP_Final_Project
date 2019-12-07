@@ -56,6 +56,7 @@ void turnHandle ( map<int, pair<string, int> > &players, vector<int> &clients, i
 void sendTurn(string s, vector <int> &clients);
 string createString(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current);
 string createRequest(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current);
+void finishGame(vector<int> &clients, string winer);
 
 int interrupted = 0;
 ///// MAIN FUNCTION
@@ -260,6 +261,7 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
         for (int i = 1; i <= clients.size(); i++){
             if (players[i].second == 0){
                 cout << " > Player " << i << " wins." << endl;
+                finishGame(clients,players[i].first);
                 break;
             }
         }
@@ -279,7 +281,7 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
         }
         else{
             who_plays--;
-            if (who_plays = 0)
+            if (who_plays == 0)
             {
                 who_plays = clients.size();;
             }
@@ -330,7 +332,7 @@ void sendFirstHands(vector<int> &clients)
 {
     char buffer[BUFFER_SIZE];
     char cards[BUFFER_SIZE];
-    vector< pair <int, int>> hand;
+    vector< pair <int, int> > hand;
 
     cout << "Sending first cards to players" << endl;
 
@@ -366,6 +368,8 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
     pair<int, int> new_card;
     string request;
 
+    
+
     for (int i = 0; i < clients.size(); i++)
     {
         if (who == (i + 1))
@@ -378,28 +382,32 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 sendTurn(request, clients);
                 new_card = gameConfirmations(players, who, clients, current);
                 break;
+            }    
 
-            }
-            // lee la carta
-            while (1){
+            while (1)
+            {   
+                // lee la carta
+            
                 number = (atoi(strtok(buffer,":")));
                 color = (atoi(strtok(NULL,":")));
                 new_card = make_pair(number, color);
                 if (verifyCard(&new_card, &current)){
                     sprintf(buffer, "Ok");
                     sendString(clients[i], buffer);
-                    recvString(clients[i], buffer, BUFFER_SIZE);
                     players[i+1].second--;
                     break;
                 }
                 sprintf(buffer, "No");
                 sendString(clients[i], buffer);
                 recvString(clients[i], buffer, BUFFER_SIZE);
-            }
+            }    
+            
         }
         else
         {
+            printf("Entrada\n");
             recvString(clients[i], buffer, BUFFER_SIZE);
+            printf("Salida\n");
         }
 
     }
@@ -465,7 +473,7 @@ void sendTurn(string s, vector <int> &clients)
 string createString(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current)
 {
     //Create buffer
-     string temp = to_string(who);
+     string temp = "TURN:" + to_string(who);
      pair <int, int> card;
 
     for (int i = 1; i <= clients.size(); i++)
@@ -494,6 +502,8 @@ string createString(map<int, pair<string, int> > &players, vector<int> &clients,
             card = get_card();
             temp += ":" + to_string(card.first) + ":" + to_string(card.second);
         }
+    }else{
+        temp += ":0";
     }
 
     return temp;
@@ -503,7 +513,7 @@ string createString(map<int, pair<string, int> > &players, vector<int> &clients,
 string createRequest(map<int, pair<string, int> > &players, vector<int> &clients, int who, pair<int, int> &current)
 {
     //Create buffer
-     string temp = to_string(who);
+     string temp = "TURN:" + to_string(who);
      pair <int, int> card;
 
     for (int i = 1; i <= clients.size(); i++)
@@ -521,4 +531,15 @@ string createRequest(map<int, pair<string, int> > &players, vector<int> &clients
 
 
     return temp;
+}
+
+void finishGame(vector<int> &clients, string winer)
+{
+    char buffer[BUFFER_SIZE];
+    // Send who win
+    sprintf(buffer,"win:%s",winer.c_str());
+    for (int i = 0; i < clients.size(); i++){
+        sendString(clients[i], buffer);
+    }
+
 }

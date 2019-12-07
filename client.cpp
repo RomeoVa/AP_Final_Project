@@ -29,6 +29,7 @@
 // Custom libraries
 #include "sockets.h"
 #include "fatal_error.h"
+#include "uno_functions.h"
 
 
 #define BUFFER_SIZE 1024
@@ -40,7 +41,13 @@ int interrupted = 0;
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void attendRequest(int connection_fd);
-void initGame(char *buffer, vector<pair<int,int> > *hand, char *turn);
+void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn);
+void saveCards(char *buffer, vector<pair<int,int> > *hand);
+void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn, const int my_turn, const char total_players, vector<pair<string,int> > *players_names, vector<pair<int,int> > *hand);
+void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int *total_players);
+void sendConfirmation(char *buffer, int connection_fd);
+int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand);
+void printMyCards(vector<pair<int,int> > hand);
 void setupHandlers();
 void onInterrupt(int signal);
 
@@ -83,12 +90,17 @@ void usage(char * program)
 void attendRequest(int connection_fd)
 {
     char buffer[BUFFER_SIZE];
-    int server_signal = 0;
-    char *player;
-    int option;
-    pair <int, int> current_card;
     char player_name[BUFFER_SIZE];
+    int server_signal = 0;
+    int option;
+    int my_turn;
+    int current_turn;
+    int total_players;
+    char * text;
+    pair <int, int> current_card;
+    //pair <string,int> player_names;
     vector <pair<int,int> > hand;
+    vector <pair<string,int> > players_names;
 
      // Variables for polling
     //struct pollfd poll_fd[1];
@@ -123,7 +135,70 @@ void attendRequest(int connection_fd)
             //Recive the players turn and cards hand
             recvString(connection_fd, buffer, BUFFER_SIZE);
             
-            initGame(buffer, &hand, player);
+            initGame(buffer, &hand, &my_turn);
+
+            sendConfirmation(buffer,connection_fd);
+
+            //Recive players name
+            recvString(connection_fd, buffer, BUFFER_SIZE);
+
+            savePlayersName(buffer, &players_names, &total_players);
+
+            sendConfirmation(buffer,connection_fd);
+
+            while(1)
+            {
+                printf("Entro\n");
+                //Recive current turn
+                recvString(connection_fd, buffer, BUFFER_SIZE);
+                printf("Salida\n");
+
+                printf("%s\n",buffer);
+                text = strtok(buffer, ":");
+                if(strncmp(text, "TURN", 5) != 0)
+                {
+                    text = strtok(NULL, ":");
+                    printf("The winner is: %s", text);
+                    break;
+
+                }
+                //printf("2.%s\n",buffer);
+                dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
+                
+                
+                if(my_turn == current_turn)
+                {
+                    while(1)
+                    {
+                        printMyCards(hand);
+                        printf("0. Ask card\nn. Card number\n Your turn: ");
+                        scanf("%d",&option);
+
+                        if(option == 0)
+                        {
+                            sprintf(buffer,"p");
+                            sendString(connection_fd, buffer);
+                            break;
+            
+                        }else
+                        {
+                            if(makeMove(connection_fd ,option-1, &hand))
+                            {
+                                deleteCardAtPosition(&hand,option-1);
+                                break;
+                            }
+
+                            printf("Invalid card\n");
+
+                        }
+                        
+                    }
+                }else{
+                    sendConfirmation(buffer,connection_fd);
+                }
+                
+                
+            }
 
         }
 
@@ -169,38 +244,128 @@ void attendRequest(int connection_fd)
     if (server_signal) {
         printf("\n > The server was interrupted, Here are the results.\n");
     }
-
-    sscanf(buffer, "%d %lu %lf", &server_signal, &counter, &result);
         
-    // Print the result
-    printf(" > Number of iterations: %lu\n", counter);    
-    printf(" > The value for PI is: %.20lf\n", result);
     */
 }
 
-void initGame(char *buffer, vector<pair<int,int> > *hand, char *turn)
+void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
 {
-    char *string,*number,*color;
-    pair<int,int> card;
+    char *string;
     
+    *turn = atoi(strtok(buffer, ":"));
 
-    turn = strtok(buffer, ":");
+    saveCards(buffer,hand);
+    //sscanf(buffer, "%d", &player, );
 
-    for(int i=0; i<7; i++)
+}
+
+void saveCards(char *buffer, vector<pair<int,int> > *hand)
+{
+    char *number,*color;
+    pair<int,int> card;
+    int total_cards;
+
+    total_cards = atoi(strtok(NULL, ":"));
+
+    for(int i=0; i<total_cards; i++)
     {
         number = strtok (NULL, ":");
         color = strtok (NULL, ":");
 
         card = make_pair(atoi(number),atoi(color));
-
+        //printf("1: %d 2: %d\n", card.first, card.second);
         hand->push_back(card);
-    
 
     }
-    //sscanf(buffer, "%d", &player, );
 
 }
 
+void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn, const int my_turn, const char total_players, vector<pair<string,int> > *players_names, vector<pair<int,int> > *hand)
+{
+    int i;
+
+    *current_turn = atoi(strtok(NULL, ":"));
+
+
+    for(i=0; i<total_players; i++)
+    {
+        players_names->at(i).second = atoi(strtok(NULL, ":")) ;
+    }
+
+    current_card->first = atoi(strtok(NULL, ":"));
+    current_card->second = atoi(strtok(NULL, ":"));
+
+    if(*current_turn == my_turn)
+    {
+        saveCards(buffer,hand);
+    }
+
+}
+
+void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int *total_players)
+{
+    char *player_name;
+    string aux;
+    pair<string,int> player;
+
+    *total_players = atoi(strtok(buffer, ":"));
+
+    for(int i=0; i<*total_players; i++)
+    {
+        player_name = strtok(NULL, ":");
+
+        strcpy(player_name,aux.c_str());
+
+        player.first = aux;
+
+        player.second = 0;
+
+        players_names->push_back(player);
+
+    }
+
+}
+
+void sendConfirmation(char *buffer, int connection_fd)
+{
+    sprintf(buffer,"OK");
+    sendString(connection_fd, buffer);
+}
+
+int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
+{
+    char buffer[BUFFER_SIZE];
+
+    if(option >= 0 && option < hand->size())
+    {
+        printf("op:%d\n",option);
+        sprintf(buffer,"%d:%d",hand->at(option).first,hand->at(option).second);
+        sendString(connection_fd, buffer);
+
+        recvString(connection_fd, buffer, BUFFER_SIZE);
+
+        if(strncmp(buffer, "No", 3) != 0)
+        {
+            return 1;
+        }
+
+    }
+
+    return 0;
+    
+
+}
+
+void printMyCards(vector<pair<int,int> > hand)
+{
+    for(int i=0; i<hand.size(); i++)
+    {
+        printf("My cards\n");
+        printf("%d-> %d %d\n",i+1,hand[i].first,hand[i].second);
+
+    }
+
+}
 // Define signal handlers
 void setupHandlers()
 {

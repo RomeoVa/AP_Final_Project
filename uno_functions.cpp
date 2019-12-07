@@ -91,6 +91,8 @@ string getColor(pair <int,int> * card)
         case BLUE: return "Blue";
         case GREEN: return "Green";
         case YELLOW: return "Yellow";
+
+        default: return "Invalid color";
     }
     
 }
