@@ -99,7 +99,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     current_text.setPosition(sf::Vector2f(500,300));
     current_text.setFont(font);
     current_text.setCharacterSize(20);
-    current_text.setString(current_number);
+    current_text.setString(getSpecialCard(getSpecialCard(current_number)));
 
     x_turn = getTurnCoords(turn).first;
     y_turn = getTurnCoords(turn).second;
