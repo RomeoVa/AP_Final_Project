@@ -91,6 +91,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
         names_texts[i].setFont(font);
         names_texts[i].setCharacterSize(20);
         names_texts[i].setString(name);
+        cout<<"NAME"<< name<<endl;
     }
 
     current_number = to_string(current_card->first);
