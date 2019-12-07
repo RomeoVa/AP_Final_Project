@@ -153,12 +153,7 @@ void attendRequest(int connection_fd)
 
             while (window.isOpen())
             {
-                sf::Event event;
-                while (window.pollEvent(event))
-                {
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                }
+               
 
                 while(!interrupted)
                 {
@@ -171,6 +166,12 @@ void attendRequest(int connection_fd)
                     {
                         text = strtok(NULL, ":");
                         printf("The winner is: %s\n", text);
+                        sf::Event event;
+                        while (window.pollEvent(event))
+                        {
+                            if (event.type == sf::Event::Closed)
+                                window.close();
+                        }
                         break;
 
                     }
