@@ -9,7 +9,7 @@ using namespace std;
 #define BUFFER_SIZE 1024
 
 
-
+/*
 int main()
 {
     vector<pair <int, int> >  hand;
@@ -38,6 +38,7 @@ int main()
 
     return 0;
 }
+*/
 
 void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn)
 {
@@ -65,7 +66,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     for(int i = 0;i < hand->size();i++)
     {
         number = to_string(hand->at(i).first);
-        cout<<"ENTRA AL FOR del text"<<i<<endl;
+        //cout<<"ENTRA AL FOR del text"<<i<<endl;
         texts[i].setPosition(sf::Vector2f(x_text,50));
         texts[i].setFont(font);
         texts[i].setCharacterSize(20);
@@ -85,7 +86,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
         name = players->at(i).first;
         name+=":\n";
         name+= to_string( players->at(i).second);
-        cout<<"ENTRA AL FOR del nombre"<<i<<endl;
+        //cout<<"ENTRA AL FOR del nombre"<<i<<endl;
         names_texts[i].setPosition(sf::Vector2f(x,y));
         names_texts[i].setFont(font);
         names_texts[i].setCharacterSize(20);
@@ -157,7 +158,7 @@ std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  han
 sf::RectangleShape createCurrentRectangle(pair <int,int> * current_card)
 {
     sf::RectangleShape current_rectangle;
-    cout<<"ENTRA AL CURRENT"<<endl;
+    //cout<<"ENTRA AL CURRENT"<<endl;
     current_rectangle.setPosition(sf::Vector2f(480,260));
     current_rectangle.setSize(sf::Vector2f(50,100));
     current_rectangle.setFillColor(getRectangleColor(current_card->second));
