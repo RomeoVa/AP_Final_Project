@@ -1,18 +1,18 @@
 #include "uno_functions.h"
 #include "colors.h"
-#include <vector> 
-#include <stdio.h>  
-#include <stdlib.h>    
-#include <time.h>     
+#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <iostream>
-#include <map> 
+#include <map>
 #include <cstring>
 
 //***************************************
-// card.first = number; 
-// card.second = color; 
+// card.first = number;
+// card.second = color;
 //***************************************
-  
+
 
 using namespace std;
 #define BUFFER_SIZE 1024
@@ -20,10 +20,10 @@ using namespace std;
 
 pair <int, int> get_card()
 {
-    pair <int, int> card ; 
+    pair <int, int> card ;
     int number;
     int color;
-    
+
     if (wild_card())
     {
         // cout << "WILD CARD ";
@@ -36,8 +36,8 @@ pair <int, int> get_card()
         number = rand() % 13 ;  // random number between 0-12
         color = rand() % 4 + 1 ;  // random number between 1-4
     }
-    card.first = number; 
-    card.second = color; 
+    card.first = number;
+    card.second = color;
 
     return card;
 }
@@ -60,13 +60,13 @@ vector<pair <int, int> > player_hand()
 {
     vector<pair <int, int> > hand;
 
-    for (int i = 0; i < 7; i++) 
+    for (int i = 0; i < 7; i++)
     {
-        hand.push_back(get_card()); 
+        hand.push_back(get_card());
     }
 
     return hand;
-       
+
 }
 
 bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card)
@@ -75,7 +75,7 @@ bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card)
     {
         return true;
     }
-    else if (card->first == -1 || card->second == 0) // WILD CARD
+    else if (card->first == -1) // WILD CARD
     {
         return true;
     }
@@ -94,7 +94,7 @@ string getColor(pair <int,int> * card)
 
         default: return "Invalid color";
     }
-    
+
 }
 
 void deleteCardAtPosition(vector<pair <int, int> > * hand,int position)
@@ -124,7 +124,7 @@ void vectorToString(vector<pair <int, int> > * hand,char  *buffer)
         {
             hand_s+= ":";
         }
-       
+
 
     }
     strcpy(buffer, hand_s.c_str());
@@ -141,8 +141,8 @@ int main()
     srand (time(NULL));
     char buffer[BUFFER_SIZE];
 
-    
-    map<int, pair <string ,int> > player; 
+
+    map<int, pair <string ,int> > player;
     player.insert(make_pair(1,make_pair("Mau",6)));
     //cout<<"player: "<<player[1].first<<player[1].second<<endl;
 
@@ -151,22 +151,22 @@ int main()
     cin>> name;
 
 
-    
+
     hand = player_hand();
     vectorToString(&hand, buffer);
     cout<<"AGAP"<<buffer<<endl;
-    
-    for (int i = 0; i<hand.size(); i++) 
-        cout << hand[i].first << ":"<< getColor(&hand[i])<<"   "; 
 
-    
+    for (int i = 0; i<hand.size(); i++)
+        cout << hand[i].first << ":"<< getColor(&hand[i])<<"   ";
+
+
 
     cout<<endl;
 
 
-    for (int i = 0; i<hand.size(); i++) 
-        cout <<"   "<< i << "      ";   
-    
+    for (int i = 0; i<hand.size(); i++)
+        cout <<"   "<< i << "      ";
+
     //cout<<"begin: "<<hand.begin()<<endl;
 
     cout<<endl;
@@ -176,17 +176,17 @@ int main()
 
     //hand.erase(hand.begin() + 1);
 
-     for (int i = 0; i<hand.size(); i++) 
-        cout << hand[i].first << ":"<< getColor(&hand[i])<<"   "; 
+     for (int i = 0; i<hand.size(); i++)
+        cout << hand[i].first << ":"<< getColor(&hand[i])<<"   ";
 
 
      cout<<endl;
 
-    for (int i = 0; i<hand.size(); i++) 
-        cout <<"   "<< i << "      ";   
-    
-        
-        
+    for (int i = 0; i<hand.size(); i++)
+        cout <<"   "<< i << "      ";
+
+
+
     cout<<endl;
 
 

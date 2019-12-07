@@ -109,7 +109,7 @@ void attendRequest(int connection_fd)
 
     // Prepare for the poll
     //poll_fd[0].fd = connection_fd;
-    //poll_fd[0].events = POLLIN;    
+    //poll_fd[0].events = POLLIN;
 
     while(option!=2)
     {
@@ -124,7 +124,7 @@ void attendRequest(int connection_fd)
             printf("Player name: ");
             scanf("%s",player_name);
 
-            
+
             // Prepare the response to the client
             sprintf(buffer,"%s",player_name);
 
@@ -134,7 +134,7 @@ void attendRequest(int connection_fd)
 
             //Recive the players turn and cards hand
             recvString(connection_fd, buffer, BUFFER_SIZE);
-            
+
             initGame(buffer, &hand, &my_turn);
 
             sendConfirmation(buffer,connection_fd);
@@ -164,8 +164,8 @@ void attendRequest(int connection_fd)
                 }
                 //printf("2.%s\n",buffer);
                 dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
-                
-                
+
+
                 if(my_turn == current_turn)
                 {
                     while(1)
@@ -179,7 +179,7 @@ void attendRequest(int connection_fd)
                             sprintf(buffer,"p");
                             sendString(connection_fd, buffer);
                             break;
-            
+
                         }else
                         {
                             if(makeMove(connection_fd ,option-1, &hand))
@@ -191,21 +191,21 @@ void attendRequest(int connection_fd)
                             printf("Invalid card\n");
 
                         }
-                        
+
                     }
                 }else{
                     sendConfirmation(buffer,connection_fd);
                 }
-                
-                
+
+
             }
 
         }
 
     }
-    
-    
-    
+
+
+
     // While not interrupted receive signals from the server.
     /*while(!interrupted)
     {
@@ -230,28 +230,28 @@ void attendRequest(int connection_fd)
             }
         }
     }*/
-    
+
     /* If interrupted, send signal to the server.
-    if (interrupted) 
+    if (interrupted)
     {
         printf("\n > Interrupted by a signal. Sending to the server.\n");
         sprintf(buffer, "%d", interrupted);
-        sendString(connection_fd, buffer); 
-        recvString(connection_fd, buffer, BUFFER_SIZE); 
+        sendString(connection_fd, buffer);
+        recvString(connection_fd, buffer, BUFFER_SIZE);
     }
 
     // Receive the request
     if (server_signal) {
         printf("\n > The server was interrupted, Here are the results.\n");
     }
-        
+
     */
 }
 
 void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
 {
     char *string;
-    
+
     *turn = atoi(strtok(buffer, ":"));
 
     saveCards(buffer,hand);
@@ -335,9 +335,28 @@ void sendConfirmation(char *buffer, int connection_fd)
 int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
 {
     char buffer[BUFFER_SIZE];
+    int color = 0;
 
     if(option >= 0 && option < hand->size())
     {
+        // Change wildcard colors
+        if (hant->at(option).second == 0)
+        {
+            printf("Please select one of the 4 colors\n");
+            printf(" 1 - Red\n");
+            printf(" 2 - Blue\n");
+            printf(" 3 - Green\n");
+            printf(" 4 - Yellow\n");
+
+            // Validate color
+            while (color < 1 || color > 4)
+            {
+                scanf("%d\n", color);
+            }
+            hant->at(option).second = color;
+
+
+        }
         printf("op:%d\n",option);
         sprintf(buffer,"%d:%d",hand->at(option).first,hand->at(option).second);
         sendString(connection_fd, buffer);
@@ -352,7 +371,7 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
     }
 
     return 0;
-    
+
 
 }
 
@@ -370,11 +389,11 @@ void printMyCards(vector<pair<int,int> > hand)
 void setupHandlers()
 {
     struct sigaction new_action;
-   
+
     new_action.sa_handler = onInterrupt;
     new_action.sa_flags = 0;
     sigfillset(&new_action.sa_mask);
-    
+
     sigaction(SIGINT, &new_action, NULL);
 }
 
