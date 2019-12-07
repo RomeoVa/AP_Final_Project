@@ -274,16 +274,26 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
 
         if (direction){
             who_plays++;
+            if (current.first == 10){
+                who_plays++;
+            }
             if (who_plays > clients.size())
             {
-                who_plays = 1;
+                who_plays = who_plays%clients.size();
             }
         }
         else{
             who_plays--;
+            if (current.first == 10){
+                who_plays--;
+            }
             if (who_plays == 0)
             {
-                who_plays = clients.size();;
+                who_plays = clients.size();
+            }
+            else if (who_plays == -1)
+            {
+                who_plays = clients.size() - 1;
             }
         }
 
@@ -368,7 +378,7 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
     pair<int, int> new_card;
     string request;
 
-    
+
 
     for (int i = 0; i < clients.size(); i++)
     {
@@ -382,12 +392,12 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 sendTurn(request, clients);
                 new_card = gameConfirmations(players, who, clients, current);
                 break;
-            }    
+            }
 
             while (1)
-            {   
+            {
                 // lee la carta
-            
+
                 number = (atoi(strtok(buffer,":")));
                 color = (atoi(strtok(NULL,":")));
                 new_card = make_pair(number, color);
@@ -400,14 +410,14 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 sprintf(buffer, "No");
                 sendString(clients[i], buffer);
                 recvString(clients[i], buffer, BUFFER_SIZE);
-            }    
-            
+            }
+
         }
         else
         {
-            printf("Entrada\n");
+            printf("Confirm\n");
             recvString(clients[i], buffer, BUFFER_SIZE);
-            printf("Salida\n");
+            printf("%s\n", buffer);
         }
 
     }
