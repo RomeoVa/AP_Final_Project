@@ -27,7 +27,8 @@ pair <int, int> get_card()
     if (wild_card())
     {
         // cout << "WILD CARD ";
-        number = -1;
+        number = rand() % 2 + 1;  // random number between 1 - 2
+        number *= -1;
         color = 0;
     }
     else
@@ -75,7 +76,7 @@ bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card)
     {
         return true;
     }
-    else if (card->first == -1) // WILD CARD
+    else if (card->first == -1 || card->first == -2) // WILD CARD
     {
         return true;
     }
