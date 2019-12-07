@@ -122,6 +122,7 @@ void attendRequest(int connection_fd)
 
         if(option == 1)
         {
+
             printf("Player name: ");
             scanf("%s",player_name);
 
@@ -146,7 +147,7 @@ void attendRequest(int connection_fd)
             savePlayersName(buffer, &players_names, &total_players);
 
             sendConfirmation(buffer,connection_fd);
-
+        
             while(!interrupted)
             {
                 
