@@ -49,7 +49,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     sf::Text current_text, turn_text;
 
     sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
-    
+
     std::vector<sf::Text> names_texts;
     sf::Font font;
     string number, current_number,name,turn_string;
@@ -72,12 +72,12 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
         texts[i].setPosition(sf::Vector2f(x_text,50));
         texts[i].setFont(font);
         texts[i].setCharacterSize(20);
-        texts[i].setString(getSpecialCard(number));
+        texts[i].setString(getSpecialCard(getSpecialCard(number)));
 
         decisions_texts[i].setPosition(sf::Vector2f(x_text,120));
         decisions_texts[i].setFont(font);
         decisions_texts[i].setCharacterSize(20);
-        decisions_texts[i].setString(getSpecialCard(to_string(i+1)));
+        decisions_texts[i].setString(to_string(i+1));
         x_text+= 50;
     }
     
