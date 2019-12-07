@@ -415,14 +415,14 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
         }
         else
         {
-            printf("Confirm\n");
+            //printf("Confirm\n");
             recvString(clients[i], buffer, BUFFER_SIZE);
-            printf("%s\n", buffer);
+            //printf("%s\n", buffer);
         }
 
     }
 
-    cout << "All confirmations recieved and new current card set" << endl;
+    //cout << "All confirmations recieved and new current card set" << endl;
     return new_card;
 
 
@@ -449,7 +449,7 @@ void sendNames( map<int, pair<string, int> > &players, vector <int> &clients)
         sendString(clients[i], buffer);
     }
 
-    printf("Names buffer = %s\n", buffer);
+    //printf("Names buffer = %s\n", buffer);
 }
 
 // Turn handle
@@ -467,7 +467,7 @@ void sendTurn(string s, vector <int> &clients)
 {
     char buffer[BUFFER_SIZE];
 
-    cout << "Sending current turn to each player" << endl;
+    //cout << "Sending current turn to each player" << endl;
 
     // Cast to char []
     strcpy(buffer, s.c_str());
@@ -476,7 +476,7 @@ void sendTurn(string s, vector <int> &clients)
         sendString(clients[i], buffer);
     }
 
-    printf("%s\n", buffer);
+    //printf("%s\n", buffer);
 }
 
 // Create a string that will be sent
