@@ -47,7 +47,9 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     std::vector<sf::Text> texts;
     std::vector<sf::Text> decisions_texts;
     sf::Text current_text, turn_text;
+
     sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
+    
     std::vector<sf::Text> names_texts;
     sf::Font font;
     string number, current_number,name,turn_string;
