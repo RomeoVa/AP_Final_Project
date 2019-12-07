@@ -392,7 +392,7 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 break;
             }
 
-            while (1)
+            while (!interrupted)
             {
                 // lee la carta
 
@@ -408,6 +408,15 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 sprintf(buffer, "No");
                 sendString(clients[i], buffer);
                 recvString(clients[i], buffer, BUFFER_SIZE);
+
+                // if player needs a new card after selecting a bad one
+                if ((strcmp(buffer,"p") == 0))
+                {
+                    request = createRequest(players, clients, who, current);
+                    sendTurn(request, clients);
+                    i = -1;
+                    break;
+                }
             }
 
         }
