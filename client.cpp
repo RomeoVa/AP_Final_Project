@@ -165,7 +165,6 @@ void attendRequest(int connection_fd)
                 //printf("2.%s\n",buffer);
                 dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
 
-
                 if(my_turn == current_turn)
                 {
                     while(1)
@@ -304,23 +303,17 @@ void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn
 
 void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int *total_players)
 {
-    char *player_name;
-    string aux;
-    pair<string,int> player;
+    string player_name;
+    stringstream ss;
 
     *total_players = atoi(strtok(buffer, ":"));
 
     for(int i=0; i<*total_players; i++)
     {
-        player_name = strtok(NULL, ":");
+        ss << strtok(NULL, ":");
+        ss >> player_name;
 
-        strcpy(player_name,aux.c_str());
-
-        player.first = aux;
-
-        player.second = 0;
-
-        players_names->push_back(player);
+        players_names->push_back(make_pair(player_name,0));
 
     }
 
