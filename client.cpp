@@ -30,6 +30,7 @@
 #include "sockets.h"
 #include "fatal_error.h"
 #include "uno_functions.h"
+#include "graphics.h"
 
 
 #define BUFFER_SIZE 1024
@@ -164,6 +165,8 @@ void attendRequest(int connection_fd)
                 }
                 //printf("2.%s\n",buffer);
                 dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
+                cout<<"NOMBRE"<<players_names[0].first<<endl;
+                renderWindow(&hand,&current_card,&players_names,(current_turn -1));
 
                 if(my_turn == current_turn)
                 {

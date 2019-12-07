@@ -488,10 +488,10 @@ string createString(map<int, pair<string, int> > &players, vector<int> &clients,
 
     for (int i = 1; i <= clients.size(); i++)
     {
-        if (current.first == -2){
+        if (current.first == -2 && who == i){
             players[i].second += 4;
         }
-        else if (current.first == 12){
+        else if (current.first == 12 && who == i){
             players[i].second += 2;
         }
         temp += ":" + to_string(players[i].second);
