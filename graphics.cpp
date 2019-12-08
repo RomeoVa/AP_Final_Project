@@ -1,3 +1,15 @@
+/*
+    UNO game graphics
+    
+
+    Created  by
+    Mauricio Peón García        A01024162
+    Pablo Terán Ríos            A01421434
+    Romeo Varela Nagore         A01020736
+
+    07/12/2019
+*/
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "uno_functions.h"

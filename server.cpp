@@ -1,7 +1,5 @@
 /*
-    Server program to compute the value of PI
-    This program calls the library function 'get_pi'
-    It will create child processes to attend requests
+    Server program to play UNO game
     It receives connections using sockets
 
 
@@ -10,7 +8,8 @@
     Pablo Terán Ríos            A01421434
     Romeo Varela Nagore         A01020736
 
-    09/11/2019
+    07/12/2019
+
 */
 
 #include <stdio.h>
@@ -544,6 +543,7 @@ string createRequest(map<int, pair<string, int> > &players, vector<int> &clients
     return temp;
 }
 
+//Send to all players who won
 void finishGame(vector<int> &clients, string winer)
 {
     char buffer[BUFFER_SIZE];

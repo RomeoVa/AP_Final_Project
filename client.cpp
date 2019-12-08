@@ -1,11 +1,14 @@
 /*
-    Client program to get the value of PI
+    Client program to play UNO game
     This program connects to the server using sockets
 
 
-    Modified by Mauricio Peón García
-    A01024162
-    27/10/2019
+    Created  by
+    Mauricio Peón García        A01024162
+    Pablo Terán Ríos            A01421434
+    Romeo Varela Nagore         A01020736
+
+    07/12/2019
 */
 //C
 #include <stdio.h>
@@ -89,6 +92,7 @@ void usage(char * program)
     exit(EXIT_FAILURE);
 }
 
+//Attend client request
 void attendRequest(int connection_fd)
 {
     char buffer[BUFFER_SIZE];
@@ -100,19 +104,10 @@ void attendRequest(int connection_fd)
     int total_players;
     char * text;
     pair <int, int> current_card;
-    //pair <string,int> player_names;
     vector <pair<int,int> > hand;
     vector <pair<string,int> > players_names;
 
-     // Variables for polling
-    //struct pollfd poll_fd[1];
-    //int poll_response;
-    //int timeout = 1000;     // Timeout of one second
-
-    // Prepare for the poll
-    //poll_fd[0].fd = connection_fd;
-    //poll_fd[0].events = POLLIN;
-
+    
     while(option!=2)
     {
         cout<<"************** Main menu **************\n";
@@ -138,17 +133,22 @@ void attendRequest(int connection_fd)
             //Recive the players turn and cards hand
             recvString(connection_fd, buffer, BUFFER_SIZE);
 
+            //Save players hand and turn
             initGame(buffer, &hand, &my_turn);
 
+            //Send a confirmation to the server
             sendConfirmation(buffer,connection_fd);
 
             //Recive players name
             recvString(connection_fd, buffer, BUFFER_SIZE);
 
+            //Save total number of players and players name
             savePlayersName(buffer, &players_names, &total_players);
 
+            //Send a confirmation message to the server
             sendConfirmation(buffer,connection_fd);
         
+            //Render window where the UNO game graphics are going to be displayed 
             sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
             window.setPosition(sf::Vector2i(0,20));
 
@@ -157,7 +157,7 @@ void attendRequest(int connection_fd)
                 sf::Event event;
                 while (window.pollEvent(event))
                 {
-
+                    //Start game
                     while(!interrupted)
                     {
                         
@@ -165,7 +165,7 @@ void attendRequest(int connection_fd)
                         recvString(connection_fd, buffer, BUFFER_SIZE);
                     
                         text = strtok(buffer, ":");
-                        if(strncmp(text, "TURN", 5) != 0)
+                        if(strncmp(text, "TURN", 5) != 0)//If there is a winner, the game finish and the winner is going to be displayed
                         {
                             text = strtok(NULL, ":");
                             printf("The winner is: %s\n", text);
@@ -176,9 +176,12 @@ void attendRequest(int connection_fd)
 
                         }
                         
+                        //Save all data related with the current turn
                         dealWithTurn(buffer, &current_card,&current_turn, my_turn, total_players, &players_names, &hand);
+                        //Display graphics
                         renderWindow(&hand,&current_card,&players_names,(current_turn -1),&window);
 
+                        //If it`s your turn send a card or ask for one
                         if(my_turn == current_turn)
                         {
                             while(1)
@@ -190,13 +193,16 @@ void attendRequest(int connection_fd)
                                 if(option == 0)
                                 {
                                     sprintf(buffer,"p");
+                                    //Ask a card to the server
                                     sendString(connection_fd, buffer);
                                     break;
 
                                 }else
                                 {
+                                    //Send a card to the server
                                     if(makeMove(connection_fd ,option-1, &hand))
-                                    {
+                                    {   
+                                        //If the card is good, remove card from the hand
                                         deleteCardAtPosition(&hand,option-1);
                                         break;
                                     }
@@ -207,6 +213,7 @@ void attendRequest(int connection_fd)
 
                             }
                         }else{
+                            //If it's not your turn send a confirmation message to the server
                             sendConfirmation(buffer,connection_fd);
                         }
 
@@ -225,6 +232,7 @@ void attendRequest(int connection_fd)
 
 }
 
+//Save initial cards and player's turn
 void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
 {
     char *string;
@@ -235,6 +243,7 @@ void initGame(char *buffer, vector<pair<int,int> > *hand, int *turn)
 
 }
 
+//Save player cards
 void saveCards(char *buffer, vector<pair<int,int> > *hand)
 {
     char *number,*color;
@@ -255,6 +264,7 @@ void saveCards(char *buffer, vector<pair<int,int> > *hand)
 
 }
 
+//Save all data related with the current turn
 void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn, const int my_turn, const char total_players, vector<pair<string,int> > *players_names, vector<pair<int,int> > *hand)
 {
     int i;
@@ -277,6 +287,7 @@ void dealWithTurn(char *buffer, pair<int, int> *current_card ,int * current_turn
 
 }
 
+//Save the name of all the players
 void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int *total_players)
 {
     char *player_name;
@@ -293,12 +304,14 @@ void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int
 
 }
 
+//Confirmation message that will be send to the server
 void sendConfirmation(char *buffer, int connection_fd)
 {
     sprintf(buffer,"OK");
     sendString(connection_fd, buffer);
 }
 
+//Send card, selected by the player ,to the server
 int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
 {
     char buffer[BUFFER_SIZE];
@@ -327,8 +340,10 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
      
         sprintf(buffer,"%d:%d",hand->at(option).first,hand->at(option).second);
         
+        //Send card to the server
         sendString(connection_fd, buffer);
      
+        //Receive server response if the card was valid
         recvString(connection_fd, buffer, BUFFER_SIZE);
 
         if(strncmp(buffer, "No", 3) != 0)
@@ -343,6 +358,7 @@ int makeMove(int connection_fd ,int option, vector<pair<int,int> > *hand)
 
 }
 
+//Print players card in console
 void printMyCards(vector<pair<int,int> > hand)
 {
     printf("***** My cards ******\n");
@@ -353,6 +369,7 @@ void printMyCards(vector<pair<int,int> > hand)
     }
 
 }
+
 // Define signal handlers
 void setupHandlers()
 {
@@ -364,7 +381,6 @@ void setupHandlers()
 
     sigaction(SIGINT, &new_action, NULL);
 }
-
 
 // Handler for SIGINT
 void onInterrupt(int signal)
