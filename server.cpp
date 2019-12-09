@@ -200,7 +200,12 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
     // Game variables
     int who_plays = 1;
     bool direction = true;
-    pair <int, int> current = get_card();
+    pair <int, int> current;
+    // Validate the starting card is a normal one
+    while(current.first < 0 || current.first > 9)
+    {
+        current = get_card();
+    }
     // Send the players their turn and the starting hand
     sendFirstHands(clients);
     // Recieve Confirmation of 4 players

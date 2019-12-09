@@ -1,6 +1,5 @@
 /*
     UNO game graphics
-    
 
     Created  by
     Mauricio Peón García        A01024162
