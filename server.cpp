@@ -320,17 +320,17 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
     {
         if (who == (i + 1))
         {
-            recvString(clients[i], buffer, BUFFER_SIZE);
-            // if player needs a new card
-            if ((strcmp(buffer,"p") == 0))
-            {
-                request = createRequest(players, clients, who, current);
-                sendTurn(request, clients);
-                new_card = gameConfirmations(players, who, clients, current);
-                break;
-            }
             while (!interrupted)
             {
+                recvString(clients[i], buffer, BUFFER_SIZE);
+                // if player needs a new card
+                if ((strcmp(buffer,"p") == 0))
+                {
+                    request = createRequest(players, clients, who, current);
+                    sendTurn(request, clients);
+                    i = -1;
+                    break;
+                }
                 // Reads the card
                 number = (atoi(strtok(buffer,":")));
                 color = (atoi(strtok(NULL,":")));
@@ -343,15 +343,6 @@ pair<int, int> gameConfirmations(map<int, pair<string, int> > &players, int who,
                 }
                 sprintf(buffer, "No");
                 sendString(clients[i], buffer);
-                recvString(clients[i], buffer, BUFFER_SIZE);
-                // if player needs a new card after selecting a bad one
-                if ((strcmp(buffer,"p") == 0))
-                {
-                    request = createRequest(players, clients, who, current);
-                    sendTurn(request, clients);
-                    i = -1;
-                    break;
-                }
             }
         }
         else
