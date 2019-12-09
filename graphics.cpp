@@ -98,7 +98,7 @@ void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_car
     // Displaying all the data in the window.
     window->display();
 }
-// Functions that creates the rectangles of the cards.
+// Function that creates the rectangles of the cards.
 std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  hand)
 {
     std::vector<sf::RectangleShape> rectangles;

@@ -285,7 +285,8 @@ void printMyCards(vector<pair<int,int> > hand)
     printf("***** My cards ******\n");
     for(int i=0; i<hand.size(); i++)
     {
-        printf("%d-> %d %d\n",i+1,hand[i].first,hand[i].second);
+        cout<<i + 1<<"-> "<< hand[i].first<<" "<<getColor(&hand[i])<<endl;
+        //printf("%d-> %d %s\n",i+1,hand[i].first,getColor(&hand[i]));
     }
 }
 // Define signal handlers

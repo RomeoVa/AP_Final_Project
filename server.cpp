@@ -200,7 +200,7 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
     // Game variables
     int who_plays = 1;
     bool direction = true;
-    pair <int, int> current;
+    pair <int, int> current =  get_card();
     // Validate the starting card is a normal one
     while(current.first < 0 || current.first > 9)
     {
