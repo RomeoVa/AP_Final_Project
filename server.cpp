@@ -2,7 +2,6 @@
     Server program to play UNO game
     It receives connections using sockets
 
-
     Created  by
     Mauricio Peón García        A01024162
     Pablo Terán Ríos            A01421434
@@ -11,7 +10,6 @@
     07/12/2019
 
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -21,16 +19,12 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <time.h>
-
 #include <sys/poll.h>
-
 #include <signal.h>
-
 #include <map>
 #include <iostream>
 #include <vector>
 #include <sstream>
-
 // Custom libraries
 #include "sockets.h"
 #include "fatal_error.h"
@@ -78,7 +72,6 @@ int main(int argc, char * argv[])
     waitForConnections(server_fd);
     // Close the socket
     close(server_fd);
-
     return 0;
 }
 
@@ -197,7 +190,7 @@ void waitForConnections(int server_fd)
         close(client_fd2);
         close(client_fd3);
         close(client_fd4);
-}
+    }
 }
 /*
     Game handler
@@ -257,7 +250,6 @@ void game(map<int, pair<string, int> > &players, vector <int> &clients)
             }
         }
     }
-
 }
 // Define signal handlers
 void setupHandlers()
@@ -441,7 +433,6 @@ string createRequest(map<int, pair<string, int> > &players, vector<int> &clients
     //Create buffer
     string temp = "TURN:" + to_string(who);
     pair <int, int> card;
-
     for (int i = 1; i <= clients.size(); i++)
     {
         if (i == who)
