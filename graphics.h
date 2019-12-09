@@ -5,7 +5,7 @@
 #include <iostream>
 #include "colors.h"
 #include "uno_functions.h"
-
+// Functions Declarations
 void renderWindow(vector<pair <int, int> > *  hand, pair <int,int> * current_card,vector<pair <string, int> > *  players,int turn,  sf::RenderWindow * window);
 std::vector<sf::RectangleShape> createRectangles(vector<pair <int, int> > *  hand);
 sf::Color getRectangleColor(int color);

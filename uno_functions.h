@@ -8,7 +8,7 @@
 #include <vector> 
 
 using namespace std;
-
+// Functions Declarations
 bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card);
 bool wild_card();
 bool winner(vector<pair <int, int> > * hand);

@@ -24,7 +24,6 @@
 // card.second = color;
 //***************************************
 
-
 using namespace std;
 #define BUFFER_SIZE 1024
 
@@ -34,17 +33,14 @@ pair <int, int> get_card()
     pair <int, int> card ;
     int number;
     int color;
-
     if (wild_card())
     {
-        // cout << "WILD CARD ";
         number = rand() % 2 + 1;  // random number between 1 - 2
         number *= -1;
         color = 0;
     }
     else
     {
-        // cout << "NORMAL CARD ";
         number = rand() % 13 ;  // random number between 0-12
         color = rand() % 4 + 1 ;  // random number between 1-4
     }
@@ -53,8 +49,7 @@ pair <int, int> get_card()
 
     return card;
 }
-
-//Get wild card probability for the UNO game
+// Get wild card probability for the UNO game. 
 bool wild_card()
 {
     int probability;
@@ -68,22 +63,17 @@ bool wild_card()
         return false;
     }
 }
-
-//Save initial hand
+// Save initial hand
 vector<pair <int, int> > player_hand()
 {
     vector<pair <int, int> > hand;
-
     for (int i = 0; i < 7; i++)
     {
         hand.push_back(get_card());
     }
-
     return hand;
-
 }
-
-//Check if the card given by the player can be played
+// Check if the card given by the player can be played
 bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card)
 {
     if(card->first == deck_card->first || card->second == deck_card->second)
@@ -97,7 +87,7 @@ bool verifyCard(pair <int,int> * card,pair <int,int> * deck_card)
     return false;
 }
 
-//Get a card color given two integers
+// Get a card color given two integers
 string getColor(pair <int,int> * card)
 {
     switch (card->second)
@@ -107,19 +97,15 @@ string getColor(pair <int,int> * card)
         case BLUE: return "Blue";
         case GREEN: return "Green";
         case YELLOW: return "Yellow";
-
         default: return "Invalid color";
     }
-
 }
-
-//Delete a card from a hand at a given position
+// Delete a card from a hand at a given position
 void deleteCardAtPosition(vector<pair <int, int> > * hand,int position)
 {
     hand->erase(hand->begin() + position);
 }
-
-//Check if a player won
+// Check if a player won
 bool winner(vector<pair <int, int> > * hand)
 {
     if(hand->size() == 0)
@@ -128,7 +114,6 @@ bool winner(vector<pair <int, int> > * hand)
     }
     return false;
 }
-
 //Convert vector data in a long string
 void vectorToString(vector<pair <int, int> > * hand,char  *buffer)
 {
@@ -144,9 +129,6 @@ void vectorToString(vector<pair <int, int> > * hand,char  *buffer)
             hand_s+= ":";
         }
 
-
     }
     strcpy(buffer, hand_s.c_str());
-
-    //cout<<"JHASKJdahk"<<buffer<<endl;
 }
