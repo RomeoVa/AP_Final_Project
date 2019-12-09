@@ -102,12 +102,16 @@ void attendRequest(int connection_fd)
     pair <int, int> current_card;
     vector <pair<int,int> > hand;
     vector <pair<string,int> > players_names;
-    while(option!=2)
+    while(!interrupted)
     {
         cout<<"************** Main menu **************\n";
         cout<<"1) Start game\n";
         cout<<"2) Exit\n";
         cin>>option;
+        if(option == 2)
+        {
+            break;
+        }
         if(option == 1)
         {
             printf("Player name: ");
@@ -129,7 +133,7 @@ void attendRequest(int connection_fd)
             savePlayersName(buffer, &players_names, &total_players);
             // Send a confirmation message to the server
             sendConfirmation(buffer,connection_fd);
-            // Render window where the UNO game graphics are going to be displayed 
+            // Render window where the UNO game graphics are going to be displayed
             sf::RenderWindow window(sf::VideoMode(1000, 600), "UNO++");
             window.setPosition(sf::Vector2i(0,20));
             while (window.isOpen())
@@ -147,7 +151,8 @@ void attendRequest(int connection_fd)
                         {
                             text = strtok(NULL, ":");
                             printf("The winner is: %s\n", text);
-                            window.close();       
+                            window.close();
+                            interrupted = 1;
                             break;
                         }
                         // Save all data related with the current turn
@@ -172,7 +177,7 @@ void attendRequest(int connection_fd)
                                 {
                                     //Send a card to the server
                                     if(makeMove(connection_fd ,option-1, &hand))
-                                    {   
+                                    {
                                         //If the card is good, remove card from the hand
                                         deleteCardAtPosition(&hand,option-1);
                                         break;
@@ -236,7 +241,7 @@ void savePlayersName(char *buffer, vector<pair<string,int> > *players_names, int
     for(int i=0; i<*total_players; i++)
     {
         player_name = strtok(NULL, ":");
-        players_names->push_back(make_pair(player_name,0));  
+        players_names->push_back(make_pair(player_name,0));
     }
 }
 //Confirmation message that will be send to the server
